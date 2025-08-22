@@ -1,10 +1,13 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  ignore = "/bin/false"
 
 [build.environment]
   NODE_VERSION = "18"
   NPM_FLAGS = "--production=false"
+  NETLIFY_USE_PNPM = "false"
+  NETLIFY_USE_YARN = "false"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
