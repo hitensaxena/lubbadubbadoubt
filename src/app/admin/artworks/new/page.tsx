@@ -80,12 +80,37 @@ export default function NewArtwork() {
         padding: '2rem',
         backgroundColor: 'var(--md-sys-color-surface)'
       }}>
-        <h1 className="md-display-small" style={{
-          color: 'var(--md-sys-color-on-surface)',
-          marginBottom: '2rem'
-        }}>
-          Create New Artwork
-        </h1>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+          <div>
+            <h1 className="md-display-small" style={{
+              color: 'var(--md-sys-color-on-surface)',
+              margin: 0
+            }}>
+              Create New Artwork
+            </h1>
+            <p className="md-body-large" style={{ color: 'var(--md-sys-color-on-surface-variant)', marginTop: '0.25rem' }}>Upload an image and add artwork details</p>
+          </div>
+          <button
+            onClick={() => router.push('/admin/artworks')}
+            className="md-outlined-button"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '0.5rem 1rem',
+              backgroundColor: 'transparent',
+              color: 'var(--md-sys-color-primary)',
+              border: '1px solid var(--md-sys-color-outline)',
+              borderRadius: '20px',
+              cursor: 'pointer'
+            }}
+          >
+            <svg style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Artworks
+          </button>
+        </div>
         
         <div className="md-surface-container" style={{
           backgroundColor: 'var(--md-sys-color-surface-container)',
