@@ -122,8 +122,8 @@ export default function NewBlogPost() {
       throw new Error(`Failed to create post: ${error.message}`)
     }
     
-    // Redirect to the created post
-    router.push(`/blogs/${slug}`)
+    // Redirect to admin blogs page
+    router.push('/admin/blogs')
 }
 
   return (

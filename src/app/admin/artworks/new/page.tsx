@@ -63,8 +63,8 @@ export default function NewArtwork() {
         throw new Error(`Failed to create artwork: ${insertError.message}`)
       }
       
-      // Redirect to artworks page
-      router.push('/artworks')
+      // Redirect to admin artworks page
+      router.push('/admin/artworks')
     } catch (error) {
       console.error('Error creating artwork:', error)
       alert(error instanceof Error ? error.message : 'Failed to create artwork')
