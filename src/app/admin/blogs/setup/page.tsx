@@ -7,6 +7,18 @@ import Link from 'next/link'
 import { sb } from '../../../../../lib/supabase/client'
 import { mdToHtml, estimateReadTime } from '../../../../../lib/md/parseMarkdown'
 
+interface BlogData {
+  frontmatter?: {
+    title?: string
+    subtitle?: string
+    excerpt?: string
+    description?: string
+    featured_image?: string
+    image?: string
+  }
+  parsedContent?: string
+}
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -18,7 +30,7 @@ function slugify(text: string): string {
 
 export default function BlogSetup() {
   const router = useRouter()
-  const [blogData, setBlogData] = useState<any>(null)
+  const [blogData, setBlogData] = useState<BlogData | null>(null)
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
