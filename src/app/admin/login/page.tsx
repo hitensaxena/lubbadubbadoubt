@@ -7,6 +7,7 @@ import { sb } from '../../../../lib/supabase/client'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -25,26 +26,30 @@ export default function AdminLoginPage() {
         return
       }
 
-      // Send magic link for authentication
-      const { error } = await sb.auth.signInWithOtp({
+      // Sign in with email and password
+      const { data, error } = await sb.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: `${window.location.origin}/admin/auth/callback`
-        }
+        password: password
       })
 
       if (error) {
         throw error
       }
 
-      // Show success message
-      setError('')
-      alert('Magic link sent! Please check your email and click the link to complete login.')
+      if (data.user?.email) {
+        // Store admin session in localStorage for additional verification
+        localStorage.setItem('admin_email', data.user.email.toLowerCase())
+        localStorage.setItem('admin_logged_in', 'true')
+        
+        // Redirect to admin dashboard
+        router.push('/admin')
+      } else {
+        setError('Authentication failed. Please try again.')
+      }
       
     } catch (error) {
       console.error('Login error:', error)
-      setError('Login failed. Please try again.')
+      setError('Invalid email or password. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -77,7 +82,7 @@ export default function AdminLoginPage() {
           <p className="md-body-large" style={{
             color: 'var(--md-sys-color-on-surface-variant)'
           }}>
-            Enter your admin email to access the dashboard
+            Enter your admin credentials to access the dashboard
           </p>
         </div>
 
@@ -125,6 +130,49 @@ export default function AdminLoginPage() {
             />
           </div>
 
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label 
+              htmlFor="password" 
+              className="md-body-large"
+              style={{
+                display: 'block',
+                fontWeight: '500',
+                color: 'var(--md-sys-color-on-surface)',
+                marginBottom: '0.5rem'
+              }}
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="md-body-large"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid var(--md-sys-color-outline)',
+                borderRadius: 'var(--md-sys-shape-corner-small)',
+                backgroundColor: 'var(--md-sys-color-surface-container-highest)',
+                color: 'var(--md-sys-color-on-surface)',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+                boxSizing: 'border-box'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'var(--md-sys-color-primary)'
+                e.target.style.boxShadow = '0 0 0 2px var(--md-sys-color-primary-container)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'var(--md-sys-color-outline)'
+                e.target.style.boxShadow = 'none'
+              }}
+              placeholder="Enter your password"
+            />
+          </div>
+
           {error && (
             <div className="md-surface-container" style={{
               padding: '0.75rem',
@@ -144,7 +192,7 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
-            disabled={loading || !email.trim()}
+            disabled={loading || !email.trim() || !password.trim()}
             className="md-filled-button"
             style={{
               width: '100%',
