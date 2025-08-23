@@ -84,22 +84,25 @@ export default async function BlogPostPage({ params }: PageProps) {
             padding: '2rem',
             zIndex: 2
           }}>
-            <h1 className="md-display-large" style={{
-              fontWeight: 'bold',
+            <h1 className="on-dark-bg" style={{
+              fontFamily: 'var(--font-playfair), serif',
+              fontWeight: '400',
               lineHeight: '1.1',
               marginBottom: '1.5rem',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
               fontSize: 'clamp(2.5rem, 5vw, 4rem)'
             }}>
               {post.title}
             </h1>
             
             {post.subtitle && (
-              <p className="md-title-large" style={{
+              <p style={{
+                fontFamily: 'var(--font-inter), sans-serif',
+                fontSize: 'clamp(1.25rem, 3vw, 1.75rem)',
+                fontWeight: '400',
                 marginBottom: '2rem',
                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
-                fontSize: 'clamp(1.25rem, 3vw, 1.75rem)',
-                opacity: 0.9
+                opacity: 0.9,
+                color: 'rgba(255, 255, 255, 0.9)'
               }}>
                 {post.subtitle}
               </p>
@@ -139,25 +142,35 @@ export default async function BlogPostPage({ params }: PageProps) {
         </section>
       ) : (
         /* Fallback header for posts without featured image */
-        <section className="md-surface" style={{
+        <section className="md-surface glass-effect" style={{
           padding: '4rem 2rem',
           textAlign: 'center',
-          backgroundColor: 'var(--md-sys-color-surface-container)'
+          background: 'var(--gradient-surface)',
+          borderBottom: '1px solid var(--md-sys-color-outline-variant)'
         }}>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <h1 className="md-display-medium" style={{
-              fontWeight: 'bold',
+            <h1 style={{
+              fontFamily: 'var(--font-playfair), serif',
+              fontWeight: '400',
+              fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
               lineHeight: '1.2',
               marginBottom: '1rem',
-              color: 'var(--md-sys-color-on-surface)'
+              background: 'var(--gradient-primary)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
             }}>
               {post.title}
             </h1>
             
             {post.subtitle && (
-              <p className="md-title-large" style={{
+              <p style={{
+                fontFamily: 'var(--font-inter), sans-serif',
+                fontSize: 'clamp(1.125rem, 2.5vw, 1.5rem)',
+                fontWeight: '400',
                 color: 'var(--md-sys-color-on-surface-variant)',
-                marginBottom: '2rem'
+                marginBottom: '2rem',
+                opacity: 0.9
               }}>
                 {post.subtitle}
               </p>
@@ -184,16 +197,18 @@ export default async function BlogPostPage({ params }: PageProps) {
       )}
 
       {/* Content Section with smooth transition */}
-      <article className="md-surface" style={{
+      <article className="md-surface glass-effect" style={{
         position: 'relative',
         zIndex: 3,
-        backgroundColor: 'var(--md-sys-color-surface)',
-        borderRadius: post.featured_image ? '2rem 2rem 0 0' : '0',
+        background: 'var(--gradient-surface)',
+        borderRadius: post.featured_image ? '2rem 2rem 0 0' : '1rem',
         marginTop: post.featured_image ? '-2rem' : '0',
         paddingTop: post.featured_image ? '3rem' : '2rem',
         paddingBottom: '4rem',
         paddingLeft: '2rem',
-        paddingRight: '2rem'
+        paddingRight: '2rem',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+        border: '1px solid var(--md-sys-color-outline-variant)'
       }}>
         <div style={{
           maxWidth: '800px',
@@ -203,9 +218,11 @@ export default async function BlogPostPage({ params }: PageProps) {
           <div 
             className="markdown-content"
             style={{
+              fontFamily: 'var(--font-inter), sans-serif',
               fontSize: '1.125rem',
-              lineHeight: '1.7',
-              color: 'var(--md-sys-color-on-surface)'
+              lineHeight: '1.8',
+              color: 'var(--md-sys-color-on-surface)',
+              letterSpacing: '0.01em'
             }}
             dangerouslySetInnerHTML={{ __html: post.content_html }}
           />
