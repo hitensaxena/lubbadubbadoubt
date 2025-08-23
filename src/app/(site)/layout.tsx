@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState, useEffect } from 'react'
 
 export default function SiteLayout({
   children,
@@ -8,9 +9,25 @@ export default function SiteLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const [isDarkMode, setIsDarkMode] = useState(false)
   
   // Hide navigation on blog detail pages
   const isBlogDetailPage = pathname?.startsWith('/blogs/') && pathname !== '/blogs'
+
+  // Theme toggle functionality
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme')
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === 'dark')
+    }
+  }, [])
+
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode
+    setIsDarkMode(newTheme)
+    localStorage.setItem('theme', newTheme ? 'dark' : 'light')
+    // Add theme switching logic here if needed
+  }
 
   return (
     <>
@@ -160,75 +177,63 @@ export default function SiteLayout({
               </svg>
               <span>Artworks</span>
             </Link>
-            <Link 
-              href="/admin" 
-              style={{
-                padding: '0.375rem 0.75rem',
-                borderRadius: '25px',
-                color: 'var(--md-sys-color-on-surface)',
-                textDecoration: 'none',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                background: pathname.startsWith('/admin') ? 'rgba(147, 51, 234, 0.1)' : 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.375rem'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'
-                e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = pathname.startsWith('/admin') ? 'rgba(147, 51, 234, 0.1)' : 'transparent'
-                e.currentTarget.style.transform = 'translateY(0) scale(1)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span>Admin</span>
-            </Link>
+
+          </nav>
+        </div>
+      </header>
+        )}
+
+        {/* Separate Theme Toggle - Top Right */}
+        {!isBlogDetailPage && (
+          <div style={{
+            position: 'fixed',
+            top: '1rem',
+            right: '1rem',
+            zIndex: 1001,
+            animation: 'floatAnimation 6s ease-in-out infinite 0.5s'
+          }}>
             <button 
+              onClick={toggleTheme}
               style={{
-                padding: '0.375rem',
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: '50%',
+                padding: '0.75rem',
                 color: 'var(--md-sys-color-on-surface)',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                background: 'transparent',
-                border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '2rem',
-                height: '2rem'
+                width: '3rem',
+                height: '3rem',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: isDarkMode ? 'rotate(180deg)' : 'rotate(0deg)'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'
-                e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
+                e.currentTarget.style.transform = `${isDarkMode ? 'rotate(180deg)' : 'rotate(0deg)'} translateY(-3px) scale(1.05)`
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.15)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.transform = 'translateY(0) scale(1)'
-                e.currentTarget.style.boxShadow = 'none'
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                e.currentTarget.style.transform = `${isDarkMode ? 'rotate(180deg)' : 'rotate(0deg)'} translateY(0) scale(1)`
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)'
               }}
             >
-              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
+              {isDarkMode ? (
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              )}
             </button>
-          </nav>
-        </div>
-      </header>
+          </div>
         )}
 
       {/* Main Content */}
