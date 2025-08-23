@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { sb } from '../../../../lib/supabase/client'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -19,16 +20,28 @@ export default function AdminLoginPage() {
       // Check if the email matches the admin email from environment
       const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'developerhiten@gmail.com'
       
-      if (email.toLowerCase().trim() === adminEmail.toLowerCase()) {
-        // Store admin session in localStorage
-        localStorage.setItem('admin_email', email.toLowerCase().trim())
-        localStorage.setItem('admin_logged_in', 'true')
-        
-        // Redirect to admin dashboard
-        router.push('/admin')
-      } else {
+      if (email.toLowerCase().trim() !== adminEmail.toLowerCase()) {
         setError('Invalid admin email. Please check your email address.')
+        return
       }
+
+      // Send magic link for authentication
+      const { error } = await sb.auth.signInWithOtp({
+        email: email.toLowerCase().trim(),
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: `${window.location.origin}/admin/auth/callback`
+        }
+      })
+
+      if (error) {
+        throw error
+      }
+
+      // Show success message
+      setError('')
+      alert('Magic link sent! Please check your email and click the link to complete login.')
+      
     } catch (error) {
       console.error('Login error:', error)
       setError('Login failed. Please try again.')
