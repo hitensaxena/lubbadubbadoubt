@@ -17,16 +17,118 @@ export default function SiteLayout({
   // Theme toggle functionality
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme')
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === 'dark')
-    }
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const shouldUseDark = savedTheme ? savedTheme === 'dark' : prefersDark
+    
+    setIsDarkMode(shouldUseDark)
+    applyTheme(shouldUseDark)
   }, [])
+
+  const applyTheme = (isDark: boolean) => {
+    const root = document.documentElement
+    
+    if (isDark) {
+      // Apply dark theme variables - Midnight Blue Spatial Effect
+      root.style.setProperty('--md-sys-color-primary', '#8b5cf6')
+      root.style.setProperty('--md-sys-color-on-primary', '#0f0a1e')
+      root.style.setProperty('--md-sys-color-primary-container', '#1e1b4b')
+      root.style.setProperty('--md-sys-color-on-primary-container', '#c7d2fe')
+      
+      root.style.setProperty('--md-sys-color-secondary', '#06b6d4')
+      root.style.setProperty('--md-sys-color-on-secondary', '#0a1929')
+      root.style.setProperty('--md-sys-color-secondary-container', '#0c4a6e')
+      root.style.setProperty('--md-sys-color-on-secondary-container', '#7dd3fc')
+      
+      root.style.setProperty('--md-sys-color-tertiary', '#ec4899')
+      root.style.setProperty('--md-sys-color-on-tertiary', '#1e0a14')
+      root.style.setProperty('--md-sys-color-tertiary-container', '#831843')
+      root.style.setProperty('--md-sys-color-on-tertiary-container', '#fce7f3')
+      
+      root.style.setProperty('--md-sys-color-error', '#ef4444')
+      root.style.setProperty('--md-sys-color-on-error', '#1a0a0a')
+      root.style.setProperty('--md-sys-color-error-container', '#7f1d1d')
+      root.style.setProperty('--md-sys-color-on-error-container', '#fecaca')
+      
+      root.style.setProperty('--md-sys-color-background', '#020617')
+      root.style.setProperty('--md-sys-color-on-background', '#cbd5e1')
+      root.style.setProperty('--md-sys-color-surface', '#0f172a')
+      root.style.setProperty('--md-sys-color-on-surface', '#e2e8f0')
+      root.style.setProperty('--md-sys-color-surface-variant', '#1e293b')
+      root.style.setProperty('--md-sys-color-on-surface-variant', '#94a3b8')
+      root.style.setProperty('--md-sys-color-outline', '#475569')
+      root.style.setProperty('--md-sys-color-outline-variant', '#334155')
+      
+      root.style.setProperty('--md-sys-color-surface-container-lowest', '#0c0a1f')
+      root.style.setProperty('--md-sys-color-surface-container-low', '#1a1a3a')
+      root.style.setProperty('--md-sys-color-surface-container', '#262654')
+      root.style.setProperty('--md-sys-color-surface-container-high', '#2d2d5f')
+      root.style.setProperty('--md-sys-color-surface-container-highest', '#34346b')
+      
+      root.style.setProperty('--md-sys-color-inverse-surface', '#f1f5f9')
+      root.style.setProperty('--md-sys-color-inverse-on-surface', '#0f172a')
+      root.style.setProperty('--md-sys-color-inverse-primary', '#4f46e5')
+      
+      // Dark theme gradients - Deep Spatial Effect
+      root.style.setProperty('--gradient-primary', 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)')
+      root.style.setProperty('--gradient-secondary', 'linear-gradient(135deg, #06b6d4 0%, #ec4899 100%)')
+      root.style.setProperty('--gradient-tertiary', 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)')
+      root.style.setProperty('--gradient-surface', 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)')
+      root.style.setProperty('--gradient-background', 'linear-gradient(135deg, #020617 0%, #0f172a 100%)')
+    } else {
+      // Apply light theme variables
+      root.style.setProperty('--md-sys-color-primary', '#8b5cf6')
+      root.style.setProperty('--md-sys-color-on-primary', '#ffffff')
+      root.style.setProperty('--md-sys-color-primary-container', '#e0e7ff')
+      root.style.setProperty('--md-sys-color-on-primary-container', '#4c1d95')
+      
+      root.style.setProperty('--md-sys-color-secondary', '#06b6d4')
+      root.style.setProperty('--md-sys-color-on-secondary', '#ffffff')
+      root.style.setProperty('--md-sys-color-secondary-container', '#cffafe')
+      root.style.setProperty('--md-sys-color-on-secondary-container', '#0e7490')
+      
+      root.style.setProperty('--md-sys-color-tertiary', '#f472b6')
+      root.style.setProperty('--md-sys-color-on-tertiary', '#ffffff')
+      root.style.setProperty('--md-sys-color-tertiary-container', '#fce7f3')
+      root.style.setProperty('--md-sys-color-on-tertiary-container', '#be185d')
+      
+      root.style.setProperty('--md-sys-color-error', '#ef4444')
+      root.style.setProperty('--md-sys-color-on-error', '#ffffff')
+      root.style.setProperty('--md-sys-color-error-container', '#fecaca')
+      root.style.setProperty('--md-sys-color-on-error-container', '#991b1b')
+      
+      root.style.setProperty('--md-sys-color-background', '#fafafa')
+      root.style.setProperty('--md-sys-color-on-background', '#374151')
+      root.style.setProperty('--md-sys-color-surface', '#ffffff')
+      root.style.setProperty('--md-sys-color-on-surface', '#374151')
+      root.style.setProperty('--md-sys-color-surface-variant', '#f3f4f6')
+      root.style.setProperty('--md-sys-color-on-surface-variant', '#6b7280')
+      root.style.setProperty('--md-sys-color-outline', '#d1d5db')
+      root.style.setProperty('--md-sys-color-outline-variant', '#e5e7eb')
+      
+      root.style.setProperty('--md-sys-color-surface-container-lowest', '#ffffff')
+      root.style.setProperty('--md-sys-color-surface-container-low', '#f4f7f7')
+      root.style.setProperty('--md-sys-color-surface-container', '#eef1f1')
+      root.style.setProperty('--md-sys-color-surface-container-high', '#e8ebeb')
+      root.style.setProperty('--md-sys-color-surface-container-highest', '#e3e6e6')
+      
+      root.style.setProperty('--md-sys-color-inverse-surface', '#2e3131')
+      root.style.setProperty('--md-sys-color-inverse-on-surface', '#eff1f1')
+      root.style.setProperty('--md-sys-color-inverse-primary', '#4ddadb')
+      
+      // Light theme gradients
+      root.style.setProperty('--gradient-primary', 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)')
+      root.style.setProperty('--gradient-secondary', 'linear-gradient(135deg, #06b6d4 0%, #f472b6 100%)')
+      root.style.setProperty('--gradient-tertiary', 'linear-gradient(135deg, #f472b6 0%, #8b5cf6 100%)')
+      root.style.setProperty('--gradient-surface', 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)')
+      root.style.setProperty('--gradient-background', 'linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%)')
+    }
+  }
 
   const toggleTheme = () => {
     const newTheme = !isDarkMode
     setIsDarkMode(newTheme)
     localStorage.setItem('theme', newTheme ? 'dark' : 'light')
-    // Add theme switching logic here if needed
+    applyTheme(newTheme)
   }
 
   return (
@@ -38,6 +140,28 @@ export default function SiteLayout({
            }
            50% {
              transform: translateY(-8px);
+           }
+         }
+         
+         @keyframes pulse {
+           0%, 100% {
+             opacity: 0.6;
+             transform: translate(-50%, -50%) scale(1);
+           }
+           50% {
+             opacity: 1;
+             transform: translate(-50%, -50%) scale(1.1);
+           }
+         }
+         
+         @keyframes themeTransition {
+           0% {
+             opacity: 0;
+             transform: scale(0.8);
+           }
+           100% {
+             opacity: 1;
+             transform: scale(1);
            }
          }
       `}</style>
@@ -58,19 +182,26 @@ export default function SiteLayout({
           animation: 'floatAnimation 6s ease-in-out infinite'
         }}>
         <div style={{
-          background: 'rgba(255, 255, 255, 0.1)',
+          background: isDarkMode 
+            ? 'linear-gradient(135deg, rgba(2, 6, 23, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%)'
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.6) 100%)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
+          border: isDarkMode 
+            ? '1px solid rgba(139, 92, 246, 0.2)'
+            : '1px solid rgba(139, 92, 246, 0.2)',
           borderRadius: '50px',
           padding: '0.5rem 1rem',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxShadow: isDarkMode 
+            ? '0 8px 32px rgba(2, 6, 23, 0.5), 0 4px 16px rgba(139, 92, 246, 0.1)'
+            : '0 8px 32px rgba(139, 92, 246, 0.1), 0 4px 16px rgba(6, 182, 212, 0.05)',
+          transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
           width: 'auto',
-          maxWidth: '1200px'
+          maxWidth: '1200px',
+          animation: 'themeTransition 0.6s ease-out'
         }}>
           {/* Navigation */}
           <nav style={{ 
@@ -88,7 +219,11 @@ export default function SiteLayout({
                 fontSize: '0.875rem',
                 fontWeight: '500',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                background: pathname === '/' ? 'rgba(147, 51, 234, 0.1)' : 'transparent',
+                background: pathname === '/' 
+                  ? (isDarkMode 
+                      ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)'
+                      : 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)')
+                  : 'transparent',
                 border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
@@ -96,12 +231,22 @@ export default function SiteLayout({
                 gap: '0.375rem'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'
+                const hoverBg = isDarkMode 
+                  ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(6, 182, 212, 0.2) 100%)'
+                  : 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(6, 182, 212, 0.2) 100%)'
+                e.currentTarget.style.background = hoverBg
                 e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
+                e.currentTarget.style.boxShadow = isDarkMode 
+                  ? '0 6px 20px rgba(139, 92, 246, 0.3)'
+                  : '0 6px 20px rgba(139, 92, 246, 0.3)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = pathname === '/' ? 'rgba(147, 51, 234, 0.1)' : 'transparent'
+                const activeBg = pathname === '/' 
+                  ? (isDarkMode 
+                      ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)'
+                      : 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)')
+                  : 'transparent'
+                e.currentTarget.style.background = activeBg
                 e.currentTarget.style.transform = 'translateY(0) scale(1)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -121,7 +266,11 @@ export default function SiteLayout({
                 fontSize: '0.875rem',
                 fontWeight: '500',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                background: pathname.startsWith('/blogs') ? 'rgba(147, 51, 234, 0.1)' : 'transparent',
+                background: pathname.startsWith('/blogs') 
+                  ? (isDarkMode 
+                      ? 'linear-gradient(135deg, rgba(167, 139, 250, 0.2) 0%, rgba(34, 211, 238, 0.1) 100%)'
+                      : 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)')
+                  : 'transparent',
                 border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
@@ -129,12 +278,22 @@ export default function SiteLayout({
                 gap: '0.375rem'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'
+                const hoverBg = isDarkMode 
+                  ? 'linear-gradient(135deg, rgba(167, 139, 250, 0.3) 0%, rgba(34, 211, 238, 0.2) 100%)'
+                  : 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(6, 182, 212, 0.2) 100%)'
+                e.currentTarget.style.background = hoverBg
                 e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
+                e.currentTarget.style.boxShadow = isDarkMode 
+                  ? '0 6px 20px rgba(167, 139, 250, 0.3)'
+                  : '0 6px 20px rgba(139, 92, 246, 0.3)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = pathname.startsWith('/blogs') ? 'rgba(147, 51, 234, 0.1)' : 'transparent'
+                const activeBg = pathname.startsWith('/blogs') 
+                  ? (isDarkMode 
+                      ? 'linear-gradient(135deg, rgba(167, 139, 250, 0.2) 0%, rgba(34, 211, 238, 0.1) 100%)'
+                      : 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)')
+                  : 'transparent'
+                e.currentTarget.style.background = activeBg
                 e.currentTarget.style.transform = 'translateY(0) scale(1)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -154,7 +313,11 @@ export default function SiteLayout({
                 fontSize: '0.875rem',
                 fontWeight: '500',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                background: pathname.startsWith('/artworks') ? 'rgba(147, 51, 234, 0.1)' : 'transparent',
+                background: pathname.startsWith('/artworks') 
+                  ? (isDarkMode 
+                      ? 'linear-gradient(135deg, rgba(167, 139, 250, 0.2) 0%, rgba(34, 211, 238, 0.1) 100%)'
+                      : 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)')
+                  : 'transparent',
                 border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
@@ -162,12 +325,22 @@ export default function SiteLayout({
                 gap: '0.375rem'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'
+                const hoverBg = isDarkMode 
+                  ? 'linear-gradient(135deg, rgba(167, 139, 250, 0.3) 0%, rgba(34, 211, 238, 0.2) 100%)'
+                  : 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(6, 182, 212, 0.2) 100%)'
+                e.currentTarget.style.background = hoverBg
                 e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
+                e.currentTarget.style.boxShadow = isDarkMode 
+                  ? '0 6px 20px rgba(167, 139, 250, 0.3)'
+                  : '0 6px 20px rgba(139, 92, 246, 0.3)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = pathname.startsWith('/artworks') ? 'rgba(147, 51, 234, 0.1)' : 'transparent'
+                const activeBg = pathname.startsWith('/artworks') 
+                  ? (isDarkMode 
+                      ? 'linear-gradient(135deg, rgba(167, 139, 250, 0.2) 0%, rgba(34, 211, 238, 0.1) 100%)'
+                      : 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%)')
+                  : 'transparent'
+                e.currentTarget.style.background = activeBg
                 e.currentTarget.style.transform = 'translateY(0) scale(1)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -195,41 +368,81 @@ export default function SiteLayout({
             <button 
               onClick={toggleTheme}
               style={{
-                background: 'rgba(255, 255, 255, 0.1)',
+                background: isDarkMode 
+                  ? 'linear-gradient(135deg, rgba(2, 6, 23, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%)'
+                  : 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
+                border: isDarkMode 
+                  ? '1px solid rgba(139, 92, 246, 0.2)'
+                  : '1px solid rgba(139, 92, 246, 0.3)',
                 borderRadius: '50%',
                 padding: '0.75rem',
-                color: 'var(--md-sys-color-on-surface)',
+                color: 'var(--md-sys-color-primary)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '3rem',
-                height: '3rem',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: isDarkMode ? 'rotate(180deg)' : 'rotate(0deg)'
+                width: '3.5rem',
+                height: '3.5rem',
+                boxShadow: isDarkMode 
+                  ? '0 8px 32px rgba(2, 6, 23, 0.5), 0 4px 16px rgba(139, 92, 246, 0.1)'
+                  : '0 8px 32px rgba(139, 92, 246, 0.2), 0 4px 16px rgba(6, 182, 212, 0.1)',
+                transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: isDarkMode ? 'rotate(180deg)' : 'rotate(0deg)',
+                position: 'relative',
+                overflow: 'hidden'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'
-                e.currentTarget.style.transform = `${isDarkMode ? 'rotate(180deg)' : 'rotate(0deg)'} translateY(-3px) scale(1.05)`
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.15)'
+                const hoverBg = isDarkMode 
+                  ? 'linear-gradient(135deg, rgba(2, 6, 23, 0.9) 0%, rgba(15, 23, 42, 0.8) 100%)'
+                  : 'linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(6, 182, 212, 0.4) 100%)'
+                e.currentTarget.style.background = hoverBg
+                e.currentTarget.style.transform = `${isDarkMode ? 'rotate(180deg)' : 'rotate(0deg)'} translateY(-4px) scale(1.1)`
+                e.currentTarget.style.boxShadow = isDarkMode 
+                  ? '0 16px 48px rgba(139, 92, 246, 0.4), 0 8px 24px rgba(6, 182, 212, 0.2)'
+                  : '0 16px 48px rgba(139, 92, 246, 0.3), 0 8px 24px rgba(6, 182, 212, 0.2)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                const normalBg = isDarkMode 
+                  ? 'linear-gradient(135deg, rgba(2, 6, 23, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%)'
+                  : 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)'
+                e.currentTarget.style.background = normalBg
                 e.currentTarget.style.transform = `${isDarkMode ? 'rotate(180deg)' : 'rotate(0deg)'} translateY(0) scale(1)`
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)'
+                e.currentTarget.style.boxShadow = isDarkMode 
+                  ? '0 8px 32px rgba(2, 6, 23, 0.5), 0 4px 16px rgba(139, 92, 246, 0.1)'
+                  : '0 8px 32px rgba(139, 92, 246, 0.2), 0 4px 16px rgba(6, 182, 212, 0.1)'
               }}
             >
+              {/* Animated background glow */}
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: '100%',
+                height: '100%',
+                background: isDarkMode 
+                  ? 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)'
+                  : 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
+                borderRadius: '50%',
+                transform: 'translate(-50%, -50%)',
+                animation: 'pulse 2s ease-in-out infinite',
+                zIndex: -1
+              }} />
+              
               {isDarkMode ? (
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{
+                  filter: 'drop-shadow(0 2px 4px rgba(139, 92, 246, 0.3))',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
               ) : (
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{
+                  filter: 'drop-shadow(0 2px 4px rgba(139, 92, 246, 0.3))',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               )}
             </button>
