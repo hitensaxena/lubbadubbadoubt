@@ -104,7 +104,7 @@ export default function Hero() {
             letterSpacing: '0.1em',
             textTransform: 'uppercase'
           }}>
-            Hello, I'm
+            Hello, I&apos;m
           </span>
         </div>
 
