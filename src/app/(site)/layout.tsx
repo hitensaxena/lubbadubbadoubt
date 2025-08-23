@@ -196,8 +196,8 @@ export default function SiteLayout({
           justifyContent: 'center',
           alignItems: 'center',
           boxShadow: isDarkMode 
-            ? '0 8px 32px rgba(2, 6, 23, 0.5), 0 4px 16px rgba(139, 92, 246, 0.1)'
-            : '0 8px 32px rgba(139, 92, 246, 0.1), 0 4px 16px rgba(6, 182, 212, 0.05)',
+            ? '0 8px 32px rgba(2, 6, 23, 0.5), 0 4px 16px rgba(139, 92, 246, 0.2), 0 12px 48px rgba(139, 92, 246, 0.15)'
+            : '0 8px 32px rgba(139, 92, 246, 0.2), 0 4px 16px rgba(6, 182, 212, 0.1), 0 12px 48px rgba(139, 92, 246, 0.15)',
           transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
           width: 'auto',
           maxWidth: '1200px',
@@ -359,11 +359,13 @@ export default function SiteLayout({
         {/* Separate Theme Toggle - Top Right */}
         {!isBlogDetailPage && (
           <div style={{
-            position: 'fixed',
+            position: 'sticky',
             top: '1rem',
             right: '1rem',
             zIndex: 1001,
-            animation: 'floatAnimation 6s ease-in-out infinite 0.5s'
+            animation: 'floatAnimation 6s ease-in-out infinite 0.5s',
+            marginLeft: 'auto',
+            width: 'fit-content'
           }}>
             <button 
               onClick={toggleTheme}
@@ -386,8 +388,8 @@ export default function SiteLayout({
                 width: '3.5rem',
                 height: '3.5rem',
                 boxShadow: isDarkMode 
-                  ? '0 8px 32px rgba(2, 6, 23, 0.5), 0 4px 16px rgba(139, 92, 246, 0.1)'
-                  : '0 8px 32px rgba(139, 92, 246, 0.2), 0 4px 16px rgba(6, 182, 212, 0.1)',
+                  ? '0 8px 32px rgba(2, 6, 23, 0.5), 0 4px 16px rgba(139, 92, 246, 0.2), 0 12px 48px rgba(139, 92, 246, 0.15)'
+                  : '0 8px 32px rgba(139, 92, 246, 0.3), 0 4px 16px rgba(6, 182, 212, 0.2), 0 12px 48px rgba(139, 92, 246, 0.15)',
                 transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
                 transform: isDarkMode ? 'rotate(180deg)' : 'rotate(0deg)',
                 position: 'relative',
@@ -419,11 +421,11 @@ export default function SiteLayout({
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                width: '100%',
-                height: '100%',
+                width: '120%',
+                height: '120%',
                 background: isDarkMode 
-                  ? 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)'
-                  : 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
+                  ? 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 50%, transparent 70%)'
+                  : 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(99, 102, 241, 0.1) 50%, transparent 70%)',
                 borderRadius: '50%',
                 transform: 'translate(-50%, -50%)',
                 animation: 'pulse 2s ease-in-out infinite',
