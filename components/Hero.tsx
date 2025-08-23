@@ -26,69 +26,40 @@ export default function Hero() {
       justifyContent: 'center',
       alignItems: 'center',
       textAlign: 'center',
-      padding: '2rem 1rem',
+      padding: '0 1rem 2rem 1rem',
+      margin: '0',
       background: 'var(--gradient-surface)',
       overflow: 'hidden'
     }}>
-      {/* Animated Background Elements */}
+      {/* Fluid Gradient Background */}
       <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
+        background: `
+          radial-gradient(circle at ${30 + mousePosition.x * 0.02}% ${40 + mousePosition.y * 0.015}%, rgba(139, 92, 246, 0.15) 0%, transparent 60%),
+          radial-gradient(circle at ${70 - mousePosition.x * 0.01}% ${60 - mousePosition.y * 0.01}%, rgba(6, 182, 212, 0.12) 0%, transparent 50%),
+          radial-gradient(circle at ${50 + mousePosition.x * 0.008}% ${20 + mousePosition.y * 0.012}%, rgba(244, 114, 182, 0.1) 0%, transparent 55%),
+          radial-gradient(circle at ${20 - mousePosition.x * 0.005}% ${80 + mousePosition.y * 0.008}%, rgba(139, 92, 246, 0.08) 0%, transparent 45%)
+        `,
+        animation: 'fluidHeroMove 25s ease-in-out infinite',
         pointerEvents: 'none',
         zIndex: 1
-      }}>
-        {/* Floating Orbs */}
-        <div style={{
-          position: 'absolute',
-          top: '20%',
-          left: '10%',
-          width: '120px',
-          height: '120px',
-          background: 'var(--gradient-primary)',
-          borderRadius: '50%',
-          opacity: 0.1,
-          animation: 'float 6s ease-in-out infinite',
-          transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`
-        }} />
-        
-        <div style={{
-          position: 'absolute',
-          top: '60%',
-          right: '15%',
-          width: '80px',
-          height: '80px',
-          background: 'var(--gradient-secondary)',
-          borderRadius: '50%',
-          opacity: 0.15,
-          animation: 'float 8s ease-in-out infinite reverse',
-          transform: `translate(${mousePosition.x * -0.015}px, ${mousePosition.y * -0.015}px)`
-        }} />
-        
-        <div style={{
-          position: 'absolute',
-          top: '30%',
-          right: '25%',
-          width: '60px',
-          height: '60px',
-          background: 'var(--gradient-tertiary)',
-          borderRadius: '50%',
-          opacity: 0.12,
-          animation: 'float 7s ease-in-out infinite',
-          transform: `translate(${mousePosition.x * 0.025}px, ${mousePosition.y * 0.025}px)`
-        }} />
-      </div>
+      }} />
 
       {/* Main Content */}
       <div style={{
         position: 'relative',
         zIndex: 2,
         maxWidth: '800px',
-        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+        margin: '0 auto',
+        transform: isVisible ? 'translateY(0) translateZ(0px)' : 'translateY(30px) translateZ(0px)',
         opacity: isVisible ? 1 : 0,
-        transition: 'all 1s ease-out'
+        transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)',
+        transformStyle: 'preserve-3d',
+        filter: 'drop-shadow(0 4px 20px rgba(0, 0, 0, 0.1))'
       }}>
         {/* Greeting */}
         <div style={{
@@ -201,12 +172,14 @@ export default function Hero() {
               cursor: 'pointer'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.15)'
+              e.currentTarget.style.transform = 'translateY(-4px) translateZ(10px) scale(1.02)'
+              e.currentTarget.style.boxShadow = '0 12px 40px rgba(139, 92, 246, 0.3), 0 4px 20px rgba(0, 0, 0, 0.1)'
+              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(139, 92, 246, 1) 0%, rgba(59, 130, 246, 1) 100%)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.transform = 'translateY(0) translateZ(0px) scale(1)'
               e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)'
+              e.currentTarget.style.background = 'var(--gradient-primary)'
             }}
           >
             <span>📚</span>
@@ -231,14 +204,18 @@ export default function Hero() {
               cursor: 'pointer'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--md-sys-color-primary)'
-              e.currentTarget.style.color = 'white'
-              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)'
+              e.currentTarget.style.color = 'var(--md-sys-color-primary)'
+              e.currentTarget.style.transform = 'translateY(-4px) translateZ(8px) scale(1.02)'
+              e.currentTarget.style.boxShadow = '0 8px 30px rgba(139, 92, 246, 0.2)'
+              e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.8)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent'
               e.currentTarget.style.color = 'var(--md-sys-color-primary)'
-              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.transform = 'translateY(0) translateZ(0px) scale(1)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = 'var(--md-sys-color-primary)'
             }}
           >
             <span>🎨</span>
@@ -253,6 +230,21 @@ export default function Hero() {
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        @keyframes fluidHeroMove {
+          0%, 100% {
+            background-position: 0% 50%, 100% 50%, 50% 0%, 0% 100%;
+          }
+          25% {
+            background-position: 25% 25%, 75% 75%, 75% 25%, 25% 75%;
+          }
+          50% {
+            background-position: 50% 0%, 50% 100%, 100% 50%, 0% 50%;
+          }
+          75% {
+            background-position: 75% 75%, 25% 25%, 25% 75%, 75% 25%;
+          }
         }
         
 
