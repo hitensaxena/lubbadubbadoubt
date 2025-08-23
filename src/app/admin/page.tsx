@@ -9,7 +9,6 @@ import Link from 'next/link'
 export default function AdminDashboard() {
   const [postsCount, setPostsCount] = useState<number | null>(null)
   const [artworksCount, setArtworksCount] = useState<number | null>(null)
-  const [loading, setLoading] = useState(true)
   const router = useRouter()
   
   useEffect(() => {
@@ -28,7 +27,7 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Error fetching counts:', error)
     } finally {
-      setLoading(false)
+      // Counts fetched
     }
   }
   

@@ -2,6 +2,9 @@ import { createClient } from '../../../../../lib/supabase/server'
 import { createClient as createStaticClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
+import Image from 'next/image'
+
+
 
 interface Post {
   id: string
@@ -14,6 +17,7 @@ interface Post {
   read_time_minutes: number
   views: number
   published: boolean
+  tags?: string[]
 }
 
 interface PageProps {
@@ -63,127 +67,195 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <>
-      {/* Hero Section with Full-Screen Featured Image */}
-      {post.featured_image ? (
-        <section style={{
-          position: 'relative',
-          height: '100vh',
-          minHeight: '600px',
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url(${post.featured_image})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white'
-        }}>
-          <div style={{
-            textAlign: 'center',
-            maxWidth: '800px',
-            padding: '2rem',
-            zIndex: 2
-          }}>
-            <h1 className="on-dark-bg" style={{
-              fontFamily: 'var(--font-playfair), serif',
-              fontWeight: '400',
-              lineHeight: '1.1',
-              marginBottom: '1.5rem',
-              fontSize: 'clamp(2.5rem, 5vw, 4rem)'
-            }}>
-              {post.title}
-            </h1>
-            
-            {post.subtitle && (
-              <p style={{
-                fontFamily: 'var(--font-inter), sans-serif',
-                fontSize: 'clamp(1.25rem, 3vw, 1.75rem)',
-                fontWeight: '400',
-                marginBottom: '2rem',
-                textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
-                opacity: 0.9,
-                color: 'rgba(255, 255, 255, 0.9)'
-              }}>
-                {post.subtitle}
-              </p>
-            )}
 
-            <div className="md-label-large" style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '1rem',
-              flexWrap: 'wrap',
-              textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
-              opacity: 0.9
-            }}>
-              <time dateTime={post.published_at}>
-                {format(new Date(post.published_at), 'MMMM d, yyyy')}
-              </time>
-              <span>•</span>
-              <span>{post.read_time_minutes} min read</span>
-              <span>•</span>
-              <span>{post.views} views</span>
-            </div>
-          </div>
-          
-          {/* Scroll indicator */}
-          <div style={{
-            position: 'absolute',
-            bottom: '2rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            animation: 'bounce 2s infinite'
-          }}>
-            <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
-              <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-            </svg>
-          </div>
-        </section>
+       
+       {/* Hero Cover Section */}
+       {post.featured_image ? (
+         <div
+           style={{
+             position: 'relative',
+             width: '100%',
+             height: '100vh',
+             minHeight: '100vh',
+             overflow: 'hidden',
+             display: 'flex',
+             alignItems: 'flex-end'
+           }}
+         >
+          <Image
+            src={post.featured_image}
+            alt={post.title}
+            fill
+            style={{
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
+            priority
+            sizes="100vw"
+          />
+          {/* Gradient overlay */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0.9) 100%)'
+              }}
+            />
+          {/* Content overlay */}
+           <div
+             style={{
+               position: 'relative',
+               width: '100%',
+               padding: '2rem',
+               paddingBottom: '4rem',
+               zIndex: 2
+             }}
+           >
+             <div
+               style={{
+                 maxWidth: '1200px',
+                 width: '100%',
+                 color: 'white'
+               }}
+             >
+               <h1
+                 style={{
+                   fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+                   fontWeight: '300',
+                   marginBottom: '1rem',
+                   lineHeight: '1.1',
+                   background: 'linear-gradient(135deg, #c4b5fd 0%, #67e8f9 100%)',
+                   WebkitBackgroundClip: 'text',
+                   WebkitTextFillColor: 'transparent',
+                   backgroundClip: 'text',
+                   filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))'
+                 }}
+               >
+                 {post.title}
+               </h1>
+               {post.subtitle && (
+                 <p
+                   style={{
+                     fontSize: 'clamp(1rem, 2.2vw, 1.25rem)',
+                     marginBottom: '1.5rem',
+                     opacity: 0.95,
+                     textShadow: '0 3px 20px rgba(0,0,0,0.9), 0 1px 5px rgba(0,0,0,1)',
+                     lineHeight: '1.4',
+                     fontWeight: '400',
+                     maxWidth: '600px',
+                     color: 'rgba(255,255,255,0.95)'
+                   }}
+                 >
+                   {post.subtitle}
+                 </p>
+               )}
+               
+               {/* Metadata group */}
+               <div style={{
+                 display: 'flex',
+                 flexDirection: 'column',
+                 gap: '1rem'
+               }}>
+                 <div
+                   style={{
+                     display: 'flex',
+                     alignItems: 'center',
+                     gap: '1rem',
+                     fontSize: '0.85rem',
+                     opacity: 0.9,
+                     flexWrap: 'wrap',
+                     textShadow: '0 2px 15px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,1)',
+                     color: 'rgba(255,255,255,0.9)'
+                   }}
+                 >
+                   <time dateTime={post.published_at}>
+                     {format(new Date(post.published_at), 'MMMM d, yyyy')}
+                   </time>
+                   <span>•</span>
+                   <span>{post.read_time_minutes} min read</span>
+                   <span>•</span>
+                   <span>{post.views} views</span>
+                 </div>
+                 
+                 {post.tags && post.tags.length > 0 && (
+                   <div style={{
+                     display: 'flex',
+                     gap: '0.5rem',
+                     flexWrap: 'wrap'
+                   }}>
+                     {post.tags.map((tag: string, index: number) => (
+                       <span
+                         key={index}
+                         style={{
+                           background: 'rgba(0,0,0,0.4)',
+                           backdropFilter: 'blur(10px)',
+                           border: '1px solid rgba(255, 255, 255, 0.3)',
+                           padding: '0.4rem 0.8rem',
+                           borderRadius: '1.5rem',
+                           fontSize: '0.75rem',
+                           fontWeight: '500',
+                           textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+                           color: 'rgba(255,255,255,0.9)'
+                         }}
+                       >
+                         {tag}
+                       </span>
+                     ))}
+                   </div>
+                 )}
+               </div>
+             </div>
+           </div>
+        </div>
       ) : (
-        /* Fallback header for posts without featured image */
-        <section className="md-surface glass-effect" style={{
-          padding: '4rem 2rem',
-          textAlign: 'center',
-          background: 'var(--gradient-surface)',
-          borderBottom: '1px solid var(--md-sys-color-outline-variant)'
-        }}>
-          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <h1 style={{
-              fontFamily: 'var(--font-playfair), serif',
-              fontWeight: '400',
-              fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
-              lineHeight: '1.2',
-              marginBottom: '1rem',
-              background: 'var(--gradient-primary)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
+        <div
+          style={{
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'var(--md-sys-color-surface)',
+            position: 'relative',
+            width: '100%'
+          }}
+        >
+          <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', textAlign: 'center' }}>
+            <h1
+              style={{
+                fontWeight: '700',
+                lineHeight: '1.1',
+                marginBottom: '1.5rem',
+                fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+                color: 'var(--md-sys-color-on-surface)'
+              }}
+            >
               {post.title}
             </h1>
-            
             {post.subtitle && (
-              <p style={{
-                fontFamily: 'var(--font-inter), sans-serif',
-                fontSize: 'clamp(1.125rem, 2.5vw, 1.5rem)',
-                fontWeight: '400',
-                color: 'var(--md-sys-color-on-surface-variant)',
-                marginBottom: '2rem',
-                opacity: 0.9
-              }}>
+              <p
+                style={{
+                  fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)',
+                  fontWeight: '300',
+                  marginBottom: '2rem',
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                  lineHeight: '1.5'
+                }}
+              >
                 {post.subtitle}
               </p>
             )}
-
-            <div className="md-label-large" style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '1rem',
-              color: 'var(--md-sys-color-on-surface-variant)',
-              flexWrap: 'wrap'
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '1.5rem',
+                flexWrap: 'wrap',
+                fontSize: '0.95rem',
+                color: 'var(--md-sys-color-on-surface-variant)',
+                marginBottom: '1.5rem'
+              }}
+            >
               <time dateTime={post.published_at}>
                 {format(new Date(post.published_at), 'MMMM d, yyyy')}
               </time>
@@ -193,53 +265,87 @@ export default async function BlogPostPage({ params }: PageProps) {
               <span>{post.views} views</span>
             </div>
           </div>
-        </section>
+        </div>
       )}
 
-      {/* Content Section with smooth transition */}
-      <article className="md-surface glass-effect" style={{
-        position: 'relative',
-        zIndex: 3,
-        background: 'var(--gradient-surface)',
-        borderRadius: post.featured_image ? '2rem 2rem 0 0' : '1rem',
-        marginTop: post.featured_image ? '-2rem' : '0',
-        paddingTop: post.featured_image ? '3rem' : '2rem',
-        paddingBottom: '4rem',
-        paddingLeft: '2rem',
-        paddingRight: '2rem',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        border: '1px solid var(--md-sys-color-outline-variant)'
-      }}>
-        <div style={{
-          maxWidth: '800px',
-          margin: '0 auto'
-        }}>
-          {/* Content */}
-          <div 
-            className="markdown-content"
-            style={{
-              fontFamily: 'var(--font-inter), sans-serif',
-              fontSize: '1.125rem',
-              lineHeight: '1.8',
-              color: 'var(--md-sys-color-on-surface)',
-              letterSpacing: '0.01em'
-            }}
-            dangerouslySetInnerHTML={{ __html: post.content_html }}
-          />
-
-          {/* Footer */}
-          <footer style={{
-            marginTop: '4rem',
-            paddingTop: '2rem',
-            borderTop: '1px solid var(--md-sys-color-outline-variant)',
-            textAlign: 'center'
-          }}>
-            <p className="md-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>
-              Published on {format(new Date(post.published_at), 'MMMM d, yyyy')}
-            </p>
-          </footer>
-        </div>
-      </article>
+      {/* Content Section */}
+       <article style={{
+           background: 'var(--md-sys-color-surface)',
+           padding: '0',
+           position: 'relative'
+         }}>
+         <div style={{
+           maxWidth: '800px',
+           margin: '0 auto',
+           padding: '4rem 2rem 6rem 2rem'
+         }}>
+           {/* Content */}
+           <div 
+             className="markdown-content"
+             style={{
+               fontFamily: 'var(--font-inter), sans-serif',
+               fontSize: '1.125rem',
+               lineHeight: '1.8',
+               color: 'var(--md-sys-color-on-surface)',
+               letterSpacing: '0.01em'
+             }}
+             dangerouslySetInnerHTML={{ __html: post.content_html }}
+           />
+ 
+           {/* Footer */}
+           <footer style={{
+             marginTop: '6rem',
+             paddingTop: '3rem',
+             borderTop: '1px solid var(--md-sys-color-outline-variant)',
+             textAlign: 'center'
+           }}>
+             <div style={{
+               display: 'flex',
+               justifyContent: 'center',
+               alignItems: 'center',
+               gap: '2rem',
+               flexWrap: 'wrap',
+               marginBottom: '2rem'
+             }}>
+               <span style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>
+                 Published on {format(new Date(post.published_at), 'MMMM d, yyyy')}
+               </span>
+               <span style={{ color: 'var(--md-sys-color-outline)' }}>•</span>
+               <span style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>
+                 {post.read_time_minutes} min read
+               </span>
+               <span style={{ color: 'var(--md-sys-color-outline)' }}>•</span>
+               <span style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>
+                 {post.views} views
+               </span>
+             </div>
+             {post.tags && post.tags.length > 0 && (
+               <div style={{
+                 display: 'flex',
+                 justifyContent: 'center',
+                 gap: '0.75rem',
+                 flexWrap: 'wrap'
+               }}>
+                 {post.tags.map((tag: string, index: number) => (
+                    <span
+                      key={index}
+                      style={{
+                        background: 'var(--md-sys-color-secondary-container)',
+                        color: 'var(--md-sys-color-on-secondary-container)',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '2rem',
+                        fontSize: '0.875rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+               </div>
+             )}
+           </footer>
+         </div>
+       </article>
       
 
     </>

@@ -39,26 +39,29 @@ export default async function BlogsPage() {
 
   return (
     <div className="md-surface" style={{
-      maxWidth: '800px',
+      maxWidth: '1200px',
       margin: '0 auto',
       padding: '2rem 1rem'
     }}>
       <h1 className="md-display-small" style={{
         fontWeight: 'bold',
         marginBottom: '0.5rem',
-        color: 'var(--md-sys-color-on-surface)'
+        color: 'var(--md-sys-color-on-surface)',
+        textAlign: 'center'
       }}>Blog Posts</h1>
       
       <p className="md-title-medium" style={{
         color: 'var(--md-sys-color-on-surface-variant)',
-        marginBottom: '3rem'
+        marginBottom: '3rem',
+        textAlign: 'center'
       }}>Thoughts, tutorials, and insights on web development and design.</p>
 
       {posts && posts.length > 0 ? (
         <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2rem'
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+          gap: '2rem',
+          alignItems: 'start'
         }}>
           {posts.map((post: Post) => (
             <PostCard 

@@ -67,26 +67,10 @@ export default function AdminLoginPage() {
         maxWidth: '400px',
         width: '100%',
         padding: '2rem',
-        borderRadius: 'var(--md-sys-shape-corner-large)'
+        borderRadius: 'var(--md-sys-shape-corner-large)',
+        boxShadow: 'var(--md-sys-elevation-3)',
+        border: '1px solid var(--md-sys-color-outline-variant)'
       }}>
-        <div style={{
-          marginBottom: '1rem'
-        }}>
-          <Link 
-            href="/admin"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              color: 'var(--md-sys-color-primary)',
-              textDecoration: 'none',
-              fontSize: '0.875rem',
-              fontWeight: '500'
-            }}
-          >
-            ← Back to Admin Home
-          </Link>
-        </div>
 
         <div style={{
           textAlign: 'center',
