@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { sb } from '../lib/supabase/client'
 
@@ -13,11 +13,7 @@ export default function AdminGuard({ children }: AdminGuardProps) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    checkAdminAuth()
-  }, [])
-
-  const checkAdminAuth = async () => {
+  const checkAdminAuth = useCallback(async () => {
     try {
       // Check localStorage first
       const adminLoggedIn = localStorage.getItem('admin_logged_in')
@@ -60,7 +56,11 @@ export default function AdminGuard({ children }: AdminGuardProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkAdminAuth()
+  }, [checkAdminAuth])
 
   if (loading) {
     return (
