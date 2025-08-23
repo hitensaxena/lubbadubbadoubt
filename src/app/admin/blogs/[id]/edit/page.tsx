@@ -3,16 +3,19 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import AdminGuard from '../../../../../../components/AdminGuard'
+import Link from 'next/link'
 import { sb } from '../../../../../../lib/supabase/client'
 import { mdToHtml, estimateReadTime, extractFrontmatter } from '../../../../../../lib/md/parseMarkdown'
 
 interface BlogPost {
   id: string
   title: string
+  subtitle: string
   slug: string
   content_md: string
   content_html: string
   excerpt: string
+  featured_image: string
   published: boolean
   created_at: string
   updated_at: string
@@ -21,12 +24,16 @@ interface BlogPost {
 export default function EditBlogPage() {
   const [post, setPost] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [title, setTitle] = useState('')
-  const [slug, setSlug] = useState('')
-  const [content, setContent] = useState('')
-  const [excerpt, setExcerpt] = useState('')
-  const [published, setPublished] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadedImageUrl, setUploadedImageUrl] = useState('')
+  const [formData, setFormData] = useState({
+    title: '',
+    subtitle: '',
+    excerpt: '',
+    featured_image: '',
+    content: ''
+  })
   const router = useRouter()
   const params = useParams()
   const postId = params.id as string
@@ -53,11 +60,13 @@ export default function EditBlogPage() {
       }
 
       setPost(data)
-      setTitle(data.title)
-      setSlug(data.slug)
-      setContent(data.content_md || '')
-      setExcerpt(data.excerpt || '')
-      setPublished(data.published)
+      setFormData({
+        title: data.title || '',
+        subtitle: data.subtitle || '',
+        excerpt: data.excerpt || '',
+        featured_image: data.featured_image || '',
+        content: data.content_md || ''
+      })
     } catch (error) {
       console.error('Error:', error)
       alert('Failed to load post')
@@ -67,29 +76,70 @@ export default function EditBlogPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaving(true)
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}.${fileExt}`
+      const filePath = `blog-images/${fileName}`
+
+      const { error: uploadError } = await sb.storage
+        .from('blog-images')
+        .upload(filePath, file)
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        alert('Error uploading image')
+        return
+      }
+
+      const { data } = sb.storage
+        .from('blog-images')
+        .getPublicUrl(filePath)
+
+      const imageUrl = data.publicUrl
+      setUploadedImageUrl(imageUrl)
+      setFormData(prev => ({ ...prev, featured_image: imageUrl }))
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error uploading image')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleSave = async (publishStatus: boolean) => {
+    setIsSaving(true)
 
     try {
       // Extract frontmatter and content (in case content has frontmatter)
-      const { frontmatter, content: cleanContent } = extractFrontmatter(content)
+      const { frontmatter, content: cleanContent } = extractFrontmatter(formData.content)
       
       // Convert markdown to HTML (using clean content without frontmatter)
       const htmlContent = await mdToHtml(cleanContent)
       
       // Estimate read time (using clean content)
       const readTime = estimateReadTime(cleanContent)
+      
+      // Generate slug from title
+      const slug = formData.title.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
 
       const { error } = await sb
         .from('posts')
         .update({
-          title,
+          title: formData.title,
+          subtitle: formData.subtitle,
           slug,
           content_md: cleanContent, // Store clean content without frontmatter
           content_html: htmlContent,
-          excerpt,
-          published,
+          excerpt: formData.excerpt,
+          featured_image: formData.featured_image,
+          published: publishStatus,
           read_time_minutes: readTime,
           updated_at: new Date().toISOString()
         })
@@ -105,7 +155,7 @@ export default function EditBlogPage() {
       console.error('Error:', error)
       alert('Failed to update post. Please try again.')
     } finally {
-      setSaving(false)
+      setIsSaving(false)
     }
   }
 
@@ -157,7 +207,7 @@ export default function EditBlogPage() {
 
           {/* Form */}
           <div className="md-surface-container" style={{ backgroundColor: 'var(--md-sys-color-surface-container)', borderRadius: '12px', border: '1px solid var(--md-sys-color-outline-variant)' }}>
-            <form onSubmit={handleSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
                 <div>
                   <label htmlFor="title" className="md-body-large" style={{ display: 'block', fontWeight: '600', color: 'var(--md-sys-color-on-surface)', marginBottom: '0.5rem' }}>
@@ -166,8 +216,8 @@ export default function EditBlogPage() {
                   <input
                     type="text"
                     id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    value={formData.title}
+                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     required
                     className="md-body-large"
                     style={{
@@ -184,15 +234,14 @@ export default function EditBlogPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="slug" className="md-body-large" style={{ display: 'block', fontWeight: '600', color: 'var(--md-sys-color-on-surface)', marginBottom: '0.5rem' }}>
-                    Slug *
+                  <label htmlFor="subtitle" className="md-body-large" style={{ display: 'block', fontWeight: '600', color: 'var(--md-sys-color-on-surface)', marginBottom: '0.5rem' }}>
+                    Subtitle
                   </label>
                   <input
                     type="text"
-                    id="slug"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    required
+                    id="subtitle"
+                    value={formData.subtitle}
+                    onChange={(e) => setFormData(prev => ({ ...prev, subtitle: e.target.value }))}
                     className="md-body-large"
                     style={{
                       width: '100%',
@@ -203,7 +252,7 @@ export default function EditBlogPage() {
                       color: 'var(--md-sys-color-on-surface)',
                       outline: 'none'
                     }}
-                    placeholder="post-url-slug"
+                    placeholder="Optional subtitle"
                   />
                 </div>
               </div>
@@ -214,8 +263,8 @@ export default function EditBlogPage() {
                 </label>
                 <textarea
                   id="excerpt"
-                  value={excerpt}
-                  onChange={(e) => setExcerpt(e.target.value)}
+                  value={formData.excerpt}
+                  onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
                   rows={3}
                   className="md-body-large"
                   style={{
@@ -233,13 +282,79 @@ export default function EditBlogPage() {
               </div>
 
               <div>
+                <label className="md-body-large" style={{ display: 'block', fontWeight: '600', color: 'var(--md-sys-color-on-surface)', marginBottom: '0.5rem' }}>
+                  Featured Image
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {(formData.featured_image || uploadedImageUrl) && (
+                    <div style={{ position: 'relative' }}>
+                      <img
+                        src={uploadedImageUrl || formData.featured_image}
+                        alt="Featured image preview"
+                        style={{
+                          width: '100%',
+                          height: '12rem',
+                          objectFit: 'cover',
+                          borderRadius: '8px',
+                          border: '1px solid var(--md-sys-color-outline)'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, featured_image: '' }))
+                          setUploadedImageUrl('')
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: '0.5rem',
+                          right: '0.5rem',
+                          backgroundColor: 'var(--md-sys-color-error)',
+                          color: 'var(--md-sys-color-on-error)',
+                          borderRadius: '50%',
+                          padding: '0.25rem',
+                          border: 'none',
+                          cursor: 'pointer',
+                          width: '2rem',
+                          height: '2rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid var(--md-sys-color-outline)',
+                      borderRadius: '8px',
+                      backgroundColor: 'var(--md-sys-color-surface)',
+                      color: 'var(--md-sys-color-on-surface)',
+                      outline: 'none'
+                    }}
+                  />
+                  {isUploading && (
+                    <p className="md-body-medium" style={{ color: 'var(--md-sys-color-primary)' }}>Uploading image...</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
                 <label htmlFor="content" className="md-body-large" style={{ display: 'block', fontWeight: '600', color: 'var(--md-sys-color-on-surface)', marginBottom: '0.5rem' }}>
                   Content *
                 </label>
                 <textarea
                   id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  value={formData.content}
+                  onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                   required
                   rows={15}
                   className="md-body-large"
@@ -259,24 +374,6 @@ export default function EditBlogPage() {
                 />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <input
-                  type="checkbox"
-                  id="published"
-                  checked={published}
-                  onChange={(e) => setPublished(e.target.checked)}
-                  style={{
-                    width: '1rem',
-                    height: '1rem',
-                    accentColor: 'var(--md-sys-color-primary)',
-                    cursor: 'pointer'
-                  }}
-                />
-                <label htmlFor="published" className="md-body-large" style={{ marginLeft: '0.5rem', color: 'var(--md-sys-color-on-surface)', cursor: 'pointer' }}>
-                  Publish this post
-                </label>
-              </div>
-
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', paddingTop: '1.5rem', borderTop: '1px solid var(--md-sys-color-outline-variant)' }}>
                 <button
                   type="button"
@@ -294,34 +391,52 @@ export default function EditBlogPage() {
                   Cancel
                 </button>
                 <button
-                  type="submit"
-                  disabled={saving}
+                  type="button"
+                  onClick={() => handleSave(false)}
+                  disabled={isSaving}
+                  className="md-outlined-button"
+                  style={{
+                    padding: '0.5rem 1.5rem',
+                    backgroundColor: 'transparent',
+                    color: 'var(--md-sys-color-primary)',
+                    border: '1px solid var(--md-sys-color-outline)',
+                    borderRadius: '20px',
+                    cursor: isSaving ? 'not-allowed' : 'pointer',
+                    opacity: isSaving ? 0.5 : 1
+                  }}
+                >
+                  {isSaving ? 'Saving...' : 'Save as Draft'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSave(true)}
+                  disabled={isSaving}
                   className="md-filled-button"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     padding: '0.5rem 1.5rem',
-                    backgroundColor: saving ? 'var(--md-sys-color-surface-variant)' : 'var(--md-sys-color-primary)',
-                    color: saving ? 'var(--md-sys-color-on-surface-variant)' : 'var(--md-sys-color-on-primary)',
+                    backgroundColor: isSaving ? 'var(--md-sys-color-surface-variant)' : 'var(--md-sys-color-primary)',
+                    color: isSaving ? 'var(--md-sys-color-on-surface-variant)' : 'var(--md-sys-color-on-primary)',
                     border: 'none',
                     borderRadius: '20px',
-                    cursor: saving ? 'not-allowed' : 'pointer'
+                    cursor: isSaving ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  {saving ? (
+                  {isSaving ? (
                     <>
                       <svg style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} fill="none" viewBox="0 0 24 24">
                         <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Updating...
+                      Publishing...
                     </>
                   ) : (
-                    'Update Post'
+                    'Publish'
                   )}
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>

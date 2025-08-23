@@ -8,6 +8,8 @@ interface Post {
   slug: string
   title: string
   subtitle?: string
+  excerpt?: string
+  featured_image?: string
   read_time_minutes: number
   published_at: string
   views: number
@@ -18,7 +20,7 @@ export default async function BlogsPage() {
   
   const { data: posts, error } = await supabase
     .from('posts')
-    .select('id, slug, title, subtitle, read_time_minutes, published_at, views')
+    .select('id, slug, title, subtitle, excerpt, featured_image, read_time_minutes, published_at, views')
     .eq('published', true)
     .order('published_at', { ascending: false })
 
@@ -65,9 +67,9 @@ export default async function BlogsPage() {
                 id: post.id,
                 title: post.title,
                 subtitle: post.subtitle,
-                excerpt: '', // Will need to be added to schema if needed
+                excerpt: post.excerpt,
                 slug: post.slug,
-                featured_image: undefined, // Will need to be added to schema if needed
+                featured_image: post.featured_image,
                 published_at: post.published_at,
                 read_time_minutes: post.read_time_minutes,
                 views: post.views

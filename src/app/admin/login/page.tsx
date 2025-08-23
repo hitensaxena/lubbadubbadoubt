@@ -70,6 +70,25 @@ export default function AdminLoginPage() {
         borderRadius: 'var(--md-sys-shape-corner-large)'
       }}>
         <div style={{
+          marginBottom: '1rem'
+        }}>
+          <Link 
+            href="/admin"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: 'var(--md-sys-color-primary)',
+              textDecoration: 'none',
+              fontSize: '0.875rem',
+              fontWeight: '500'
+            }}
+          >
+            ← Back to Admin Home
+          </Link>
+        </div>
+
+        <div style={{
           textAlign: 'center',
           marginBottom: '2rem'
         }}>

@@ -89,6 +89,26 @@ export default function AdminArtworksPage() {
   return (
     <AdminGuard>
       <div className="md-surface" style={{ maxWidth: '72rem', margin: '0 auto', padding: '2rem' }}>
+        {/* Back Button */}
+        <div style={{
+          marginBottom: '1rem'
+        }}>
+          <Link 
+            href="/admin"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: 'var(--md-sys-color-primary)',
+              textDecoration: 'none',
+              fontSize: '0.875rem',
+              fontWeight: '500'
+            }}
+          >
+            ← Back to Admin Home
+          </Link>
+        </div>
+
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>

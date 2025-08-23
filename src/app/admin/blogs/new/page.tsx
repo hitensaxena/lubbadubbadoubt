@@ -1,402 +1,271 @@
 'use client'
 
 import { useState } from 'react'
-import AdminGuard from '../../../../../components/AdminGuard'
-import { sb } from '../../../../../lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { extractFrontmatter, mdToHtml, estimateReadTime } from '../../../../../lib/md/parseMarkdown'
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9 -]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim()
-}
+import AdminGuard from '../../../../../components/AdminGuard'
+import Link from 'next/link'
+import { extractFrontmatter } from '../../../../../lib/md/parseMarkdown'
 
 export default function NewBlogPost() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    title: '',
-    subtitle: '',
-    excerpt: '',
-    featured_image: ''
-  })
-  const [isProcessingFile, setIsProcessingFile] = useState(false)
-  
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [dragActive, setDragActive] = useState(false)
+
+  const handleFileSelect = (file: File) => {
+    if (file.type !== 'text/markdown' && !file.name.endsWith('.md')) {
+      alert('Please select a valid markdown (.md) file')
+      return
+    }
+    setSelectedFile(file)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
+    if (file) {
+      handleFileSelect(file)
+    }
+  }
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true)
+    } else if (e.type === 'dragleave') {
+      setDragActive(false)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
     
-    setIsProcessingFile(true)
+    const files = e.dataTransfer.files
+    if (files && files[0]) {
+      handleFileSelect(files[0])
+    }
+  }
+
+  const handleContinue = async () => {
+    if (!selectedFile) return
+    
+    setIsProcessing(true)
     try {
-      const mdContent = await file.text()
-      const { frontmatter } = extractFrontmatter(mdContent)
+      const mdContent = await selectedFile.text()
+      const { frontmatter, content } = extractFrontmatter(mdContent)
       
-      // Auto-populate form fields from frontmatter
-      setFormData({
-        title: (frontmatter.title as string) || '',
-        subtitle: (frontmatter.subtitle as string) || '',
-        excerpt: (frontmatter.excerpt as string) || (frontmatter.description as string) || '',
-        featured_image: (frontmatter.featured_image as string) || (frontmatter.image as string) || ''
-      })
+      // Store the markdown data in sessionStorage to pass to setup page
+      const blogData = {
+        filename: selectedFile.name,
+        content: mdContent,
+        frontmatter,
+        parsedContent: content
+      }
+      
+      sessionStorage.setItem('newBlogData', JSON.stringify(blogData))
+      
+      // Redirect to setup page
+      router.push('/admin/blogs/setup')
     } catch (error) {
       console.error('Error processing markdown file:', error)
+      alert('Error processing the markdown file. Please try again.')
     } finally {
-      setIsProcessingFile(false)
+      setIsProcessing(false)
     }
   }
-  
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    
-    // Check current user for debugging
-    const { data: { user }, error: authError } = await sb.auth.getUser()
-    console.log('Current user:', user?.email)
-    
-    if (authError || !user) {
-      throw new Error('Authentication required')
-    }
-  
-  // Extract form data
-  const title = formData.get('title') as string
-  const subtitle = formData.get('subtitle') as string
-  const excerpt = formData.get('excerpt') as string
-  const featured_image = formData.get('featured_image') as string
-  const published = formData.get('published') === 'on'
-  const mdFile = formData.get('md') as File
-  
-  if (!title || !mdFile) {
-    throw new Error('Title and markdown file are required')
-  }
-  
-  // Read markdown file
-  const mdContent = await mdFile.text()
-  
-  // Extract frontmatter and content
-  const { frontmatter, content } = extractFrontmatter(mdContent)
-  
-  // Generate slug
-  const slug = frontmatter.slug || slugify(title)
-  
-  // Convert markdown to HTML
-  const htmlContent = await mdToHtml(content)
-  
-  // Estimate read time
-  const readTime = estimateReadTime(content)
-  
-  // Prepare post data
-  const postData = {
-    title,
-    subtitle: subtitle || null,
-    excerpt: excerpt || null,
-    featured_image: featured_image || null,
-    slug,
-    content: htmlContent,
-    read_time: readTime,
-    published,
-    published_at: published ? new Date().toISOString() : null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  }
-  
-  // Insert into database
-    const { error } = await sb
-      .from('posts')
-      .insert({
-        slug,
-        title,
-        subtitle,
-        excerpt,
-        content_md: content,
-        content_html: htmlContent,
-        featured_image,
-        published,
-        published_at: published ? new Date().toISOString() : null,
-        read_time_minutes: readTime
-      })
-    
-    if (error) {
-      throw new Error(`Failed to create post: ${error.message}`)
-    }
-    
-    // Redirect to admin blogs page
-    router.push('/admin/blogs')
-}
 
   return (
     <AdminGuard>
       <div className="md-surface" style={{
-        maxWidth: '800px',
+        maxWidth: '600px',
         margin: '0 auto',
         padding: '2rem',
-        backgroundColor: 'var(--md-sys-color-surface)',
-        color: 'var(--md-sys-color-on-surface)'
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column'
       }}>
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
-          <div>
-            <h1 className="md-display-small" style={{
-              margin: 0,
-              color: 'var(--md-sys-color-on-surface)'
-            }}>
-              Create New Blog Post
-            </h1>
-            <p className="md-body-large" style={{ color: 'var(--md-sys-color-on-surface-variant)', marginTop: '0.25rem' }}>Upload a markdown file to create a new blog post</p>
-          </div>
-          <button
-            onClick={() => router.push('/admin/blogs')}
-            className="md-outlined-button"
+        {/* Back Button */}
+        <div style={{
+          marginBottom: '1rem'
+        }}>
+          <Link 
+            href="/admin/blogs"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              padding: '0.5rem 1rem',
-              backgroundColor: 'transparent',
+              gap: '0.5rem',
               color: 'var(--md-sys-color-primary)',
-              border: '1px solid var(--md-sys-color-outline)',
-              borderRadius: '20px',
-              cursor: 'pointer'
+              textDecoration: 'none',
+              fontSize: '0.875rem',
+              fontWeight: '500'
             }}
           >
-            <svg style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Posts
-          </button>
+            ← Back to Blog Posts
+          </Link>
         </div>
-        
-        <form onSubmit={handleSubmit} className="md-surface-container" style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem',
-          padding: '1.5rem',
-          borderRadius: '12px',
-          backgroundColor: 'var(--md-sys-color-surface-container)'
+
+        {/* Header */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '3rem'
         }}>
-          {/* Title */}
-          <div>
-            <label className="md-body-large" style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '600',
-              color: 'var(--md-sys-color-on-surface)'
-            }}>
-              Title *
-            </label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              required
-              className="md-body-large"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid var(--md-sys-color-outline)',
-                borderRadius: '8px',
-                backgroundColor: 'var(--md-sys-color-surface)',
-                color: 'var(--md-sys-color-on-surface)'
-              }}
-              placeholder="Enter post title"
-            />
-          </div>
-          
-          {/* Subtitle */}
-          <div>
-            <label className="md-body-large" style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '600',
-              color: 'var(--md-sys-color-on-surface)'
-            }}>
-              Subtitle
-            </label>
-            <input
-              type="text"
-              name="subtitle"
-              value={formData.subtitle}
-              onChange={(e) => setFormData(prev => ({ ...prev, subtitle: e.target.value }))}
-              className="md-body-large"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid var(--md-sys-color-outline)',
-                borderRadius: '8px',
-                backgroundColor: 'var(--md-sys-color-surface)',
-                color: 'var(--md-sys-color-on-surface)'
-              }}
-              placeholder="Enter post subtitle (optional)"
-            />
-          </div>
-          
-          {/* Excerpt */}
-          <div>
-            <label className="md-body-large" style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '600',
-              color: 'var(--md-sys-color-on-surface)'
-            }}>
-              Excerpt
-            </label>
-            <textarea
-              name="excerpt"
-              value={formData.excerpt}
-              onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
-              rows={3}
-              className="md-body-large"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid var(--md-sys-color-outline)',
-                borderRadius: '8px',
-                backgroundColor: 'var(--md-sys-color-surface)',
-                color: 'var(--md-sys-color-on-surface)',
-                resize: 'vertical'
-              }}
-              placeholder="Brief description of the post (optional)"
-            />
-          </div>
-          
-          {/* Featured Image */}
-          <div>
-            <label className="md-body-large" style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '600',
-              color: 'var(--md-sys-color-on-surface)'
-            }}>
-              Featured Image URL
-            </label>
-            <input
-              type="url"
-              name="featured_image"
-              value={formData.featured_image}
-              onChange={(e) => setFormData(prev => ({ ...prev, featured_image: e.target.value }))}
-              className="md-body-large"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid var(--md-sys-color-outline)',
-                borderRadius: '8px',
-                backgroundColor: 'var(--md-sys-color-surface)',
-                color: 'var(--md-sys-color-on-surface)'
-              }}
-              placeholder="https://example.com/image.jpg (optional)"
-            />
-          </div>
-          
-          {/* Markdown File */}
-          <div>
-            <label className="md-body-large" style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              fontWeight: '600',
-              color: 'var(--md-sys-color-on-surface)'
-            }}>
-              Markdown File *
-            </label>
-            <input
-              type="file"
-              name="md"
-              accept=".md,.markdown"
-              onChange={handleFileChange}
-              required
-              className="md-body-large"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid var(--md-sys-color-outline)',
-                borderRadius: '8px',
-                backgroundColor: 'var(--md-sys-color-surface-container)',
-                color: 'var(--md-sys-color-on-surface)'
-              }}
-            />
-            {isProcessingFile && (
-              <p className="md-body-small" style={{
-                color: 'var(--md-sys-color-primary)',
-                marginTop: '0.25rem'
-              }}>
-                Processing markdown file and extracting metadata...
-              </p>
-            )}
-            <p className="md-body-small" style={{
-              color: 'var(--md-sys-color-on-surface-variant)',
-              marginTop: '0.25rem'
-            }}>
-              Upload a .md file with your blog post content. Fields above will be auto-populated from frontmatter if available.
-            </p>
-          </div>
-          
-          {/* Published Checkbox */}
-          <div style={{
+          <h1 className="md-display-small" style={{
+            color: 'var(--md-sys-color-on-surface)',
+            marginBottom: '0.5rem',
+            fontWeight: 'bold'
+          }}>
+            Create New Blog Post
+          </h1>
+          <p className="md-body-large" style={{
+            color: 'var(--md-sys-color-on-surface-variant)'
+          }}>
+            Upload a markdown file to get started
+          </p>
+        </div>
+
+        {/* File Upload Area */}
+        <div 
+          className="md-surface-container-high"
+          style={{
+            flex: 1,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            <input
-              type="checkbox"
-              name="published"
-              id="published"
-              style={{
-                width: '1.25rem',
-                height: '1.25rem',
-                accentColor: 'var(--md-sys-color-primary)'
-              }}
-            />
-            <label htmlFor="published" className="md-body-large" style={{
-              fontWeight: '600',
-              color: 'var(--md-sys-color-on-surface)',
-              cursor: 'pointer'
-            }}>
-              Publish immediately
-            </label>
-          </div>
+            justifyContent: 'center',
+            padding: '3rem 2rem',
+            borderRadius: 'var(--md-sys-shape-corner-large)',
+            border: `2px dashed ${dragActive ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)'}`,
+            backgroundColor: dragActive ? 'var(--md-sys-color-primary-container)' : 'var(--md-sys-color-surface-container-high)',
+            transition: 'all 0.2s ease',
+            cursor: 'pointer',
+            position: 'relative'
+          }}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          onClick={() => document.getElementById('file-input')?.click()}
+        >
+          <input
+            id="file-input"
+            type="file"
+            accept=".md,.markdown"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+          />
           
-          {/* Submit Button */}
-          <div style={{
-            display: 'flex',
-            gap: '1rem',
-            marginTop: '1rem'
-          }}>
-            <button
-              type="submit"
-              className="md-filled-button"
-              style={{
-                padding: '0.75rem 2rem',
-                backgroundColor: 'var(--md-sys-color-primary)',
-                color: 'var(--md-sys-color-on-primary)',
-                border: 'none',
-                borderRadius: '20px',
-                cursor: 'pointer'
-              }}
-            >
-              Create Post
-            </button>
-            
-            <a
-              href="/admin/blogs"
-              className="md-outlined-button"
-              style={{
-                padding: '0.75rem 2rem',
-                backgroundColor: 'transparent',
-                color: 'var(--md-sys-color-primary)',
-                border: '1px solid var(--md-sys-color-outline)',
-                borderRadius: '20px',
-                textDecoration: 'none',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              Cancel
-            </a>
-          </div>
-        </form>
+          {selectedFile ? (
+            <div style={{ textAlign: 'center' }}>
+              <svg 
+                style={{ 
+                  width: '4rem', 
+                  height: '4rem', 
+                  color: 'var(--md-sys-color-primary)',
+                  marginBottom: '1rem'
+                }} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 className="md-headline-medium" style={{
+                color: 'var(--md-sys-color-on-surface)',
+                marginBottom: '0.5rem'
+              }}>
+                File Selected
+              </h3>
+              <p className="md-body-large" style={{
+                color: 'var(--md-sys-color-on-surface-variant)',
+                marginBottom: '0.25rem'
+              }}>
+                {selectedFile.name}
+              </p>
+              <p className="md-body-medium" style={{
+                color: 'var(--md-sys-color-on-surface-variant)'
+              }}>
+                {(selectedFile.size / 1024).toFixed(1)} KB
+              </p>
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center' }}>
+              <svg 
+                style={{ 
+                  width: '4rem', 
+                  height: '4rem', 
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                  marginBottom: '1rem'
+                }} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <h3 className="md-headline-medium" style={{
+                color: 'var(--md-sys-color-on-surface)',
+                marginBottom: '0.5rem'
+              }}>
+                Upload Markdown File
+              </h3>
+              <p className="md-body-large" style={{
+                color: 'var(--md-sys-color-on-surface-variant)',
+                marginBottom: '1rem'
+              }}>
+                Drag and drop your .md file here, or click to browse
+              </p>
+              <p className="md-body-medium" style={{
+                color: 'var(--md-sys-color-on-surface-variant)'
+              }}>
+                Supports .md and .markdown files
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{
+          display: 'flex',
+          gap: '1rem',
+          marginTop: '2rem',
+          justifyContent: 'center'
+        }}>
+          {selectedFile && (
+            <>
+              <button
+                onClick={() => setSelectedFile(null)}
+                className="md-outlined-button"
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: 'var(--md-sys-shape-corner-full)',
+                  border: '1px solid var(--md-sys-color-outline)',
+                  backgroundColor: 'transparent',
+                  color: 'var(--md-sys-color-on-surface)'
+                }}
+              >
+                Choose Different File
+              </button>
+              <button
+                onClick={handleContinue}
+                disabled={isProcessing}
+                className="md-filled-button"
+                style={{
+                  padding: '0.75rem 2rem',
+                  borderRadius: 'var(--md-sys-shape-corner-full)',
+                  backgroundColor: 'var(--md-sys-color-primary)',
+                  color: 'var(--md-sys-color-on-primary)',
+                  border: 'none',
+                  opacity: isProcessing ? 0.6 : 1,
+                  cursor: isProcessing ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {isProcessing ? 'Processing...' : 'Continue to Setup'}
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </AdminGuard>
   )
