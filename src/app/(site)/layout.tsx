@@ -6,7 +6,6 @@ export default function SiteLayout({
 }: {
   children: React.ReactNode
 }) {
-  const currentYear = new Date().getFullYear()
 
   return (
     <div className="md-surface" style={{
@@ -112,7 +111,7 @@ export default function SiteLayout({
             letterSpacing: '0.5px',
             lineHeight: '1.4'
           }}>
-            "What you seek is seeking you."
+            &ldquo;What you seek is seeking you.&rdquo;
           </p>
           <div style={{
             marginTop: '1rem',
