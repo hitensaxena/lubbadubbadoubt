@@ -184,22 +184,20 @@ export default function SiteLayout({
         }}>
         <div style={{
           background: isDarkMode 
-            ? 'linear-gradient(135deg, rgba(2, 6, 23, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%)'
-            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.6) 100%)',
+            ? 'rgba(15, 23, 42, 0.1)'
+            : 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           border: isDarkMode 
-            ? '1px solid rgba(139, 92, 246, 0.2)'
-            : '1px solid rgba(139, 92, 246, 0.2)',
-          borderRadius: isClient && isMobile ? '20px' : '60px',
-          padding: isClient && isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
+            ? '1px solid rgba(255, 255, 255, 0.2)'
+            : '1px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: isClient && isMobile ? '20px' : '50px',
+          padding: isClient && isMobile ? '0.5rem 0.75rem' : '0.75rem 1.25rem',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          boxShadow: isDarkMode 
-            ? '0 8px 32px rgba(2, 6, 23, 0.5), 0 4px 16px rgba(139, 92, 246, 0.2), 0 12px 48px rgba(139, 92, 246, 0.15)'
-            : '0 8px 32px rgba(139, 92, 246, 0.2), 0 4px 16px rgba(6, 182, 212, 0.1), 0 12px 48px rgba(139, 92, 246, 0.15)',
-          transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+          transition: 'all 0.3s ease',
           width: isClient && isMobile ? 'auto' : 'fit-content',
           maxWidth: isClient && isMobile ? 'none' : '600px',
           minWidth: isClient && isMobile ? 'auto' : 'auto',
@@ -208,6 +206,18 @@ export default function SiteLayout({
           position: 'relative',
           pointerEvents: 'auto',
           overflow: 'hidden'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = isDarkMode 
+            ? 'rgba(15, 23, 42, 0.2)'
+            : 'rgba(255, 255, 255, 0.2)'
+          e.currentTarget.style.transform = 'translateY(-2px)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = isDarkMode 
+            ? 'rgba(15, 23, 42, 0.1)'
+            : 'rgba(255, 255, 255, 0.1)'
+          e.currentTarget.style.transform = 'translateY(0)'
         }}>
 
           
