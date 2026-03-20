@@ -25,21 +25,24 @@ export default function PostCard({ post }: PostCardProps) {
       overflow: 'hidden',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       cursor: 'pointer',
-      borderRadius: 'var(--md-sys-shape-corner-large)',
-      border: '1px solid var(--md-sys-color-outline-variant)',
-      backgroundColor: 'var(--md-sys-color-surface-container-low)',
-      boxShadow: 'var(--md-sys-elevation-1)',
+      borderRadius: '24px',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      background: 'rgba(255, 255, 255, 0.03)',
+      backdropFilter: 'blur(10px)',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       height: 'fit-content'
     }}
     onMouseOver={(e) => {
       e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'
-      e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-4)'
-      e.currentTarget.style.backgroundColor = 'var(--md-sys-color-surface-container)'
+      e.currentTarget.style.boxShadow = '0 12px 24px rgba(139, 92, 246, 0.15)'
+      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'
+      e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)'
     }}
     onMouseOut={(e) => {
       e.currentTarget.style.transform = 'translateY(0) scale(1)'
-      e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)'
-      e.currentTarget.style.backgroundColor = 'var(--md-sys-color-surface-container-low)'
+      e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'
+      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)'
+      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'
     }}>
       <Link href={`/blogs/${post.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
         {post.featured_image && (

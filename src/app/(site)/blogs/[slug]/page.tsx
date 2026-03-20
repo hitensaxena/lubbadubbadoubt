@@ -214,7 +214,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'var(--md-sys-color-surface)',
+            background: 'transparent',
             position: 'relative',
             width: '100%'
           }}
@@ -270,9 +270,12 @@ export default async function BlogPostPage({ params }: PageProps) {
 
       {/* Content Section */}
        <article style={{
-           background: 'var(--md-sys-color-surface)',
+           background: 'rgba(15, 23, 42, 0.2)',
+           backdropFilter: 'blur(30px)',
+           borderTop: '1px solid rgba(255, 255, 255, 0.08)',
            padding: '0',
-           position: 'relative'
+           position: 'relative',
+           marginTop: post.featured_image ? '0' : '4rem'
          }}>
          <div style={{
            maxWidth: '800px',

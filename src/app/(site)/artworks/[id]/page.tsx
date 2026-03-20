@@ -32,10 +32,11 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
   }
 
   return (
-    <article className="md-surface" style={{
+    <article style={{
       maxWidth: '1000px',
       margin: '0 auto',
-      padding: '2rem 1rem'
+      padding: '4rem 1rem',
+      background: 'transparent'
     }}>
       {/* Header */}
       <header style={{
@@ -63,9 +64,12 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
 
       {/* Artwork Image */}
       {artwork.image_url && (
-        <div className="md-surface-container" style={{
+        <div style={{
           marginBottom: '3rem',
-          borderRadius: 'var(--md-sys-shape-corner-large)',
+          borderRadius: '24px',
+          background: 'rgba(255, 255, 255, 0.03)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
           overflow: 'hidden',
           textAlign: 'center'
         }}>

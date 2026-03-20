@@ -19,16 +19,25 @@ export default function ArtworkCard({ artwork }: ArtworkCardProps) {
   return (
     <article className="md-card" style={{
       overflow: 'hidden',
-      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-      cursor: 'pointer'
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      cursor: 'pointer',
+      borderRadius: '24px',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      background: 'rgba(255, 255, 255, 0.03)',
+      backdropFilter: 'blur(10px)',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
     }}
     onMouseOver={(e) => {
-      e.currentTarget.style.transform = 'translateY(-4px)'
-      e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)'
+      e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'
+      e.currentTarget.style.boxShadow = '0 12px 24px rgba(139, 92, 246, 0.15)'
+      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'
+      e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)'
     }}
     onMouseOut={(e) => {
-      e.currentTarget.style.transform = 'translateY(0)'
+      e.currentTarget.style.transform = 'translateY(0) scale(1)'
       e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'
+      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)'
+      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'
     }}>
       <Link href={`/artworks/${artwork.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
         <div style={{

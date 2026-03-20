@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import ThreeDBackground from './ThreeDBackground'
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false)
@@ -48,6 +49,11 @@ export default function Hero() {
         pointerEvents: 'none',
         zIndex: 1
       }} />
+
+      {/* 3D WebGL Background */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}>
+        <ThreeDBackground />
+      </div>
 
       {/* Main Content */}
       <div style={{

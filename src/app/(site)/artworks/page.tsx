@@ -19,9 +19,15 @@ export default async function ArtworksPage() {
   if (error) {
     console.error('Error fetching artworks:', error)
     return (
-      <div className="md-surface" style={{
+      <div style={{
         padding: '2rem',
-        textAlign: 'center'
+        textAlign: 'center',
+        background: 'rgba(255, 255, 255, 0.03)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        borderRadius: '24px',
+        maxWidth: '600px',
+        margin: '4rem auto'
       }}>
         <h1 className="md-headline-large" style={{ color: 'var(--md-sys-color-error)', marginBottom: '1rem' }}>Error loading artworks</h1>
         <p className="md-body-large" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Please try again later.</p>
@@ -30,10 +36,11 @@ export default async function ArtworksPage() {
   }
 
   return (
-    <div className="md-surface" style={{
+    <div style={{
       maxWidth: '1200px',
       margin: '0 auto',
-      padding: '2rem 1rem'
+      padding: '4rem 1rem',
+      background: 'transparent'
     }}>
       <h1 className="md-display-small" style={{
         fontWeight: 'bold',
@@ -68,10 +75,13 @@ export default async function ArtworksPage() {
            ))}
         </div>
       ) : (
-        <div className="md-surface-container" style={{
+        <div style={{
           textAlign: 'center',
           padding: '4rem 2rem',
-          borderRadius: 'var(--md-sys-shape-corner-large)'
+          borderRadius: '24px',
+          background: 'rgba(255, 255, 255, 0.03)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.05)'
         }}>
           <h2 className="md-headline-medium" style={{ marginBottom: '1rem', color: 'var(--md-sys-color-on-surface)' }}>No artworks yet</h2>
           <p className="md-body-large" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Check back soon for new creative works!</p>

@@ -23,50 +23,11 @@ export default function HomePage() {
       <section className="section-padding" style={{
         position: 'relative',
         padding: '8rem 2rem',
-        background: 'var(--gradient-background)',
+        background: 'transparent',
         overflow: 'hidden',
         perspective: '1000px'
       }}>
-        {/* 3D Floating Elements */}
-          <div className="floating-element" style={{
-            position: 'absolute',
-            top: '10%',
-            left: '10%',
-            width: '100px',
-            height: '100px',
-            background: 'linear-gradient(45deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1))',
-            borderRadius: '50%',
-            filter: 'blur(40px)',
-            animation: 'morphShape 12s ease-in-out infinite, glowPulse 4s ease-in-out infinite',
-            transform: 'translateZ(50px)'
-          }} />
-        <div className="floating-element" style={{
-            position: 'absolute',
-            top: '60%',
-            right: '15%',
-            width: '80px',
-            height: '80px',
-            background: 'linear-gradient(135deg, rgba(244, 114, 182, 0.1), rgba(139, 92, 246, 0.1))',
-            borderRadius: '50%',
-            filter: 'blur(30px)',
-            animation: 'breathe 8s ease-in-out infinite reverse',
-            transform: 'translateZ(30px)'
-          }} />
-        {/* Fluid Gradient Background */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            radial-gradient(circle at ${20 + scrollY * 0.01}% ${30 + scrollY * 0.005}%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at ${80 - scrollY * 0.008}% ${70 - scrollY * 0.003}%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
-            radial-gradient(circle at ${50 + scrollY * 0.006}% ${20 + scrollY * 0.004}%, rgba(244, 114, 182, 0.06) 0%, transparent 50%)
-          `,
-          animation: 'fluidMove 20s ease-in-out infinite',
-          pointerEvents: 'none'
-        }} />
+        {/* Transparent layout uses GlowOverlay from root */}
         
         <div style={{
           position: 'relative',
@@ -213,49 +174,12 @@ export default function HomePage() {
       <section className="section-padding" style={{
         position: 'relative',
         padding: '8rem 2rem',
-        background: 'var(--gradient-surface)',
+        background: 'transparent',
         overflow: 'hidden',
-        perspective: '1200px'
+        perspective: '1200px',
+        borderTop: '1px solid rgba(255, 255, 255, 0.05)'
       }}>
-        {/* 3D Geometric Elements */}
-         <div className="floating-element" style={{
-           position: 'absolute',
-           top: '20%',
-           right: '10%',
-           width: '120px',
-           height: '120px',
-           background: 'linear-gradient(45deg, rgba(139, 92, 246, 0.08), rgba(59, 130, 246, 0.08))',
-           transform: 'rotateX(45deg) rotateY(45deg) translateZ(100px)',
-           borderRadius: '20px',
-           filter: 'blur(20px)',
-           animation: 'rotate3D 20s linear infinite, glowPulse 6s ease-in-out infinite'
-         }} />
-         <div className="floating-element" style={{
-           position: 'absolute',
-           bottom: '15%',
-           left: '8%',
-           width: '90px',
-           height: '90px',
-           background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(139, 92, 246, 0.08))',
-           transform: 'rotateX(-30deg) rotateY(60deg) translateZ(80px)',
-           borderRadius: '50%',
-           filter: 'blur(25px)',
-           animation: 'breathe 7s ease-in-out infinite'
-         }} />
-        {/* Fluid Gradient Background */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            radial-gradient(circle at ${70 - scrollY * 0.01}% ${40 + scrollY * 0.008}%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
-            radial-gradient(circle at ${30 + scrollY * 0.007}% ${80 - scrollY * 0.005}%, rgba(244, 114, 182, 0.08) 0%, transparent 50%)
-          `,
-          animation: 'fluidMove 25s ease-in-out infinite reverse',
-          pointerEvents: 'none'
-        }} />
+
         
         <div style={{
           position: 'relative',
@@ -425,52 +349,15 @@ export default function HomePage() {
        <section className="section-padding" style={{
          position: 'relative',
          padding: '10rem 2rem',
-         background: 'var(--gradient-background)',
+         background: 'transparent',
          overflow: 'hidden',
          minHeight: '100vh',
          display: 'flex',
          alignItems: 'center',
-         perspective: '1000px'
+         perspective: '1000px',
+         borderTop: '1px solid rgba(255, 255, 255, 0.05)'
        }}>
-         {/* 3D Abstract Elements */}
-          <div className="floating-element" style={{
-            position: 'absolute',
-            top: '25%',
-            left: '5%',
-            width: '150px',
-            height: '150px',
-            background: 'conic-gradient(from 0deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1), rgba(244, 114, 182, 0.1))',
-            borderRadius: '50%',
-            filter: 'blur(50px)',
-            animation: 'gradientShift 15s linear infinite',
-            transform: 'translateZ(60px)'
-          }} />
-          <div className="floating-element" style={{
-            position: 'absolute',
-            bottom: '20%',
-            right: '8%',
-            width: '100px',
-            height: '100px',
-            background: 'linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
-            borderRadius: '30%',
-            filter: 'blur(35px)',
-            animation: 'pulse 4s ease-in-out infinite',
-            transform: 'rotateX(30deg) translateZ(40px)'
-          }} />
-        {/* Fluid Gradient Background */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            radial-gradient(circle at ${40 + scrollY * 0.005}% ${60 - scrollY * 0.007}%, rgba(244, 114, 182, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at ${90 - scrollY * 0.009}% ${20 + scrollY * 0.006}%, rgba(139, 92, 246, 0.08) 0%, transparent 60%)
-          `,
-          animation: 'fluidMove 30s ease-in-out infinite',
-          pointerEvents: 'none'
-        }} />
+
         
         <div style={{
           position: 'relative',
@@ -610,23 +497,11 @@ export default function HomePage() {
       <footer style={{
         position: 'relative',
         padding: '4rem 2rem 2rem',
-        background: 'var(--gradient-surface)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+        background: 'transparent',
+        borderTop: '1px solid rgba(255, 255, 255, 0.05)',
         overflow: 'hidden'
       }}>
-        {/* Subtle Gradient Background */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            radial-gradient(circle at 25% 25%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.05) 0%, transparent 50%)
-          `,
-          pointerEvents: 'none'
-        }} />
+
         
         <div style={{
           position: 'relative',
