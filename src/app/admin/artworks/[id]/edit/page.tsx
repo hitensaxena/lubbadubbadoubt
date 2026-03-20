@@ -12,6 +12,11 @@ interface Artwork {
   image_url: string
   created_at: string
   updated_at: string
+  medium?: string
+  dimensions?: string
+  year?: number
+  tags?: string[]
+  is_featured?: boolean
 }
 
 export default function EditArtworkPage() {
@@ -23,6 +28,11 @@ export default function EditArtworkPage() {
   const [description, setDescription] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
+  const [medium, setMedium] = useState('')
+  const [dimensions, setDimensions] = useState('')
+  const [year, setYear] = useState('')
+  const [tags, setTags] = useState('')
+  const [isFeatured, setIsFeatured] = useState(false)
   const router = useRouter()
   const params = useParams()
   const artworkId = params.id as string
@@ -52,6 +62,11 @@ export default function EditArtworkPage() {
       setTitle(data.title)
       setDescription(data.description || '')
       setImageUrl(data.image_url)
+      setMedium(data.medium || '')
+      setDimensions(data.dimensions || '')
+      setYear(data.year ? data.year.toString() : '')
+      setTags(data.tags?.join(', ') || '')
+      setIsFeatured(data.is_featured || false)
     } catch (error) {
       console.error('Error:', error)
       alert('Failed to load artwork')
@@ -101,7 +116,12 @@ export default function EditArtworkPage() {
           title,
           description,
           image_url: finalImageUrl,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          medium: medium || null,
+          dimensions: dimensions || null,
+          year: year ? parseInt(year, 10) : null,
+          tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+          is_featured: isFeatured
         })
         .eq('id', artworkId)
 
@@ -227,6 +247,44 @@ export default function EditArtworkPage() {
                 />
               </div>
 
+              {/* Grid for smaller fields */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                <div>
+                  <label htmlFor="medium" className="md-body-large" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
+                    Medium
+                  </label>
+                  <input type="text" id="medium" value={medium} onChange={e => setMedium(e.target.value)} className="md-body-large" style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--md-sys-color-outline)', borderRadius: '8px', backgroundColor: 'var(--md-sys-color-surface)', color: 'var(--md-sys-color-on-surface)', outline: 'none' }} placeholder="e.g., Oil on Canvas" />
+                </div>
+                <div>
+                  <label htmlFor="dimensions" className="md-body-large" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
+                    Dimensions
+                  </label>
+                  <input type="text" id="dimensions" value={dimensions} onChange={e => setDimensions(e.target.value)} className="md-body-large" style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--md-sys-color-outline)', borderRadius: '8px', backgroundColor: 'var(--md-sys-color-surface)', color: 'var(--md-sys-color-on-surface)', outline: 'none' }} placeholder="e.g., 24 x 36 inches" />
+                </div>
+                <div>
+                  <label htmlFor="year" className="md-body-large" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
+                    Year
+                  </label>
+                  <input type="number" id="year" value={year} onChange={e => setYear(e.target.value)} min="1000" max="3000" className="md-body-large" style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--md-sys-color-outline)', borderRadius: '8px', backgroundColor: 'var(--md-sys-color-surface)', color: 'var(--md-sys-color-on-surface)', outline: 'none' }} placeholder="e.g., 2024" />
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label htmlFor="tags" className="md-body-large" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
+                  Tags (comma separated)
+                </label>
+                <input type="text" id="tags" value={tags} onChange={e => setTags(e.target.value)} className="md-body-large" style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--md-sys-color-outline)', borderRadius: '8px', backgroundColor: 'var(--md-sys-color-surface)', color: 'var(--md-sys-color-on-surface)', outline: 'none' }} placeholder="e.g., abstract, modern, landscape" />
+              </div>
+
+              {/* Featured Toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <input type="checkbox" id="is_featured" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} style={{ width: '1.25rem', height: '1.25rem', accentColor: 'var(--md-sys-color-primary)' }} />
+                <label htmlFor="is_featured" className="md-body-large" style={{ fontWeight: '600', color: 'var(--md-sys-color-on-surface)', cursor: 'pointer', userSelect: 'none' }}>
+                  Feature this artwork on the home gallery
+                </label>
+              </div>
+
               <div>
                 <label htmlFor="image" className="md-body-large" style={{ display: 'block', fontWeight: '600', color: 'var(--md-sys-color-on-surface)', marginBottom: '0.5rem' }}>
                   Artwork Image
@@ -238,7 +296,7 @@ export default function EditArtworkPage() {
                       <img
                         src={imageUrl}
                         alt="Artwork preview"
-                        style={{ width: '100%', maxWidth: '28rem', height: '16rem', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--md-sys-color-outline-variant)' }}
+                        style={{ width: '100%', height: 'auto', maxHeight: '400px', objectFit: 'contain', backgroundColor: 'var(--md-sys-color-surface-variant)', borderRadius: '8px', border: '1px solid var(--md-sys-color-outline-variant)' }}
                       />
                       <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem' }}>
                         <span className="md-body-small" style={{ display: 'inline-flex', alignItems: 'center', padding: '0.25rem 0.5rem', backgroundColor: 'var(--md-sys-color-primary-container)', color: 'var(--md-sys-color-on-primary-container)', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '500' }}>

@@ -12,6 +12,10 @@ interface Artwork {
   title: string
   image_url?: string
   created_at: string
+  medium?: string
+  year?: number
+  is_featured?: boolean
+  tags?: string[]
 }
 
 export default function AdminArtworksPage() {
@@ -26,9 +30,8 @@ export default function AdminArtworksPage() {
       try {
         const { data, error } = await supabase
           .from('artworks')
-          .select('id, title, created_at')
+          .select('id, title, image_url, created_at, medium, year, is_featured, tags')
           .order('created_at', { ascending: false })
-          .limit(20)
 
         if (error) {
           console.error('Error fetching artworks:', error)
@@ -149,108 +152,118 @@ export default function AdminArtworksPage() {
             </div>
           </div>
         ) : (
-          <div className="md-surface-container-high" style={{ borderRadius: 'var(--md-sys-shape-corner-large)', overflow: 'hidden' }}>
-            <table style={{ width: '100%' }}>
-              <thead className="md-surface-container">
-                <tr>
-                  <th className="md-label-large" style={{ padding: '0.75rem 1.5rem', textAlign: 'left', color: 'var(--md-sys-color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                    Artwork
-                  </th>
-                  <th className="md-label-large" style={{ padding: '0.75rem 1.5rem', textAlign: 'left', color: 'var(--md-sys-color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                    Created
-                  </th>
-                  <th className="md-label-large" style={{ padding: '0.75rem 1.5rem', textAlign: 'right', color: 'var(--md-sys-color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {artworks.map((artwork) => (
-                  <tr key={artwork.id} style={{ borderTop: '1px solid var(--md-sys-color-outline-variant)' }}>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {artwork.image_url && (
-                          <div style={{ flexShrink: 0, height: '3rem', width: '3rem', marginRight: '1rem' }}>
-                            <img 
-                              style={{ height: '3rem', width: '3rem', borderRadius: 'var(--md-sys-shape-corner-medium)', objectFit: 'cover', border: '1px solid var(--md-sys-color-outline-variant)' }}
-                              src={artwork.image_url} 
-                              alt={artwork.title}
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                              }}
-                            />
-                          </div>
-                        )}
-                        <div>
-                          <div className="md-body-medium" style={{ fontWeight: '500', color: 'var(--md-sys-color-on-surface)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '20rem' }}>
-                            {artwork.title}
-                          </div>
-                          <div className="md-body-small" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>
-                            ID: {artwork.id.slice(0, 8)}...
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="md-body-medium" style={{ padding: '1rem 1.5rem', whiteSpace: 'nowrap', color: 'var(--md-sys-color-on-surface-variant)' }}>
-                      {format(new Date(artwork.created_at), 'MMM d, yyyy')}
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem', whiteSpace: 'nowrap', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                        <Link 
-                          href={`/artworks/${artwork.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="md-text-button"
-                          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', fontSize: '0.75rem' }}
-                        >
-                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                          Preview
-                        </Link>
-                        <button
-                          onClick={() => handleEdit(artwork.id)}
-                          className="md-outlined-button"
-                          style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.75rem' }}
-                        >
-                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(artwork.id, artwork.title)}
-                          disabled={deleting === artwork.id}
-                          className="md-filled-button"
-                          style={{ 
-                            display: 'inline-flex', 
-                            alignItems: 'center', 
-                            fontSize: '0.75rem',
-                            backgroundColor: 'var(--md-sys-color-error)',
-                            color: 'var(--md-sys-color-on-error)',
-                            opacity: deleting === artwork.id ? 0.5 : 1,
-                            cursor: deleting === artwork.id ? 'not-allowed' : 'pointer'
-                          }}
-                        >
-                          {deleting === artwork.id ? (
-                            <svg className="w-3 h-3 mr-1 animate-spin" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                          ) : (
-                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          )}
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: '2rem'
+          }}>
+            {artworks.map((artwork) => (
+              <div key={artwork.id} className="md-card" style={{
+                backgroundColor: 'var(--md-sys-color-surface-container)',
+                borderRadius: 'var(--md-sys-shape-corner-large)',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+              }}>
+                {/* Image */}
+                <div style={{
+                  position: 'relative',
+                  width: '100%',
+                  aspectRatio: '4/3',
+                  backgroundColor: 'var(--md-sys-color-surface-variant)'
+                }}>
+                  {artwork.image_url ? (
+                    <img 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      src={artwork.image_url} 
+                      alt={artwork.title}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--md-sys-color-on-surface-variant)' }}>
+                      No Image
+                    </div>
+                  )}
+                  {artwork.is_featured && (
+                    <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', padding: '0.25rem 0.75rem', backgroundColor: '#fef08a', color: '#854d0e', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                      ★ Featured
+                    </div>
+                  )}
+                </div>
+                
+                {/* Content */}
+                <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <h3 className="md-title-large" style={{ fontWeight: 'bold', margin: '0 0 0.5rem 0', color: 'var(--md-sys-color-on-surface)' }}>
+                    {artwork.title}
+                  </h3>
+                  
+                  <div className="md-body-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    {artwork.medium && <div>{artwork.medium}</div>}
+                    {artwork.year && <div>Created: {artwork.year}</div>}
+                    <div>Added: {format(new Date(artwork.created_at), 'MMM d, yyyy')}</div>
+                    <div style={{ opacity: 0.5 }}>ID: {artwork.id.slice(0, 8)}</div>
+                  </div>
+                  
+                  {/* Tags */}
+                  {artwork.tags && artwork.tags.length > 0 && (
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+                      {artwork.tags.map(tag => (
+                        <span key={tag} style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: 'var(--md-sys-color-surface-variant)', color: 'var(--md-sys-color-on-surface-variant)', borderRadius: '4px' }}>
+                          #{tag.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Actions */}
+                  <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.5rem', paddingTop: '1rem', borderTop: '1px solid var(--md-sys-color-outline-variant)' }}>
+                    <Link 
+                      href={`/artworks/${artwork.id}`}
+                      target="_blank"
+                      className="md-outlined-button"
+                      style={{ justifyContent: 'center', display: 'flex', padding: '0.5rem', borderRadius: '8px', textDecoration: 'none', border: '1px solid var(--md-sys-color-outline)', color: 'var(--md-sys-color-primary)', fontSize: '0.875rem' }}
+                    >
+                      View
+                    </Link>
+                    <button
+                      onClick={() => handleEdit(artwork.id)}
+                      className="md-filled-button"
+                      style={{ display: 'flex', justifyContent: 'center', padding: '0.5rem', borderRadius: '8px', border: 'none', backgroundColor: 'var(--md-sys-color-primary)', color: 'var(--md-sys-color-on-primary)', cursor: 'pointer', fontSize: '0.875rem' }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(artwork.id, artwork.title)}
+                      disabled={deleting === artwork.id}
+                      className="md-filled-button"
+                      style={{ 
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: '0.5rem 0.75rem',
+                        borderRadius: '8px',
+                        backgroundColor: 'var(--md-sys-color-error)',
+                        color: 'var(--md-sys-color-on-error)',
+                        opacity: deleting === artwork.id ? 0.5 : 1,
+                        cursor: deleting === artwork.id ? 'not-allowed' : 'pointer',
+                        border: 'none'
+                      }}
+                      title="Delete"
+                    >
+                      {deleting === artwork.id ? '...' : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1.25rem', height: '1.25rem' }}>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -16,6 +16,8 @@ interface BlogPost {
   featured_image?: string
   published: boolean
   created_at: string
+  tags?: string[]
+  is_featured?: boolean
 }
 
 export default function AdminBlogsPage() {
@@ -30,9 +32,8 @@ export default function AdminBlogsPage() {
       try {
         const { data, error } = await supabase
           .from('posts')
-          .select('id, title, subtitle, slug, excerpt, featured_image, published, created_at')
+          .select('id, title, subtitle, slug, excerpt, featured_image, published, created_at, tags, is_featured')
           .order('created_at', { ascending: false })
-          .limit(20)
 
         if (error) {
           console.error('Error fetching posts:', error)
@@ -178,7 +179,7 @@ export default function AdminBlogsPage() {
                 {/* Content */}
                 <div style={{ padding: '1.5rem' }}>
                   {/* Status Badge */}
-                  <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <span className="md-label-medium" style={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -196,6 +197,18 @@ export default function AdminBlogsPage() {
                       }}></span>
                       {post.published ? 'Published' : 'Draft'}
                     </span>
+                    {post.is_featured && (
+                      <span className="md-label-medium" style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: 'var(--md-sys-shape-corner-full)',
+                        backgroundColor: '#fef08a',
+                        color: '#854d0e'
+                      }}>
+                        ★ Featured
+                      </span>
+                    )}
                   </div>
                   
                   {/* Title */}
@@ -243,11 +256,22 @@ export default function AdminBlogsPage() {
                   {/* Meta Info */}
                   <div className="md-body-small" style={{
                     color: 'var(--md-sys-color-on-surface-variant)',
-                    marginBottom: '1.5rem'
+                    marginBottom: '1rem'
                   }}>
                     <div>/{post.slug}</div>
                     <div>{format(new Date(post.created_at), 'MMM d, yyyy')}</div>
                   </div>
+                  
+                  {/* Tags */}
+                  {post.tags && post.tags.length > 0 && (
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+                      {post.tags.map(tag => (
+                        <span key={tag} style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', backgroundColor: 'var(--md-sys-color-surface-variant)', color: 'var(--md-sys-color-on-surface-variant)', borderRadius: '4px' }}>
+                          #{tag.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   
                   {/* Actions */}
                   <div style={{

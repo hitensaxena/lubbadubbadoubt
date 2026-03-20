@@ -76,6 +76,17 @@ export default function NewBlogPost() {
     }
   }
 
+  const handleStartFromScratch = () => {
+    const emptyBlogData = {
+      filename: 'scratch.md',
+      content: '',
+      frontmatter: {},
+      parsedContent: ''
+    }
+    sessionStorage.setItem('newBlogData', JSON.stringify(emptyBlogData))
+    router.push('/admin/blogs/setup')
+  }
+
   return (
     <AdminGuard>
       <div className="md-surface" style={{
@@ -265,6 +276,37 @@ export default function NewBlogPost() {
               </button>
             </>
           )}
+        </div>
+
+        {/* Start from Scratch Option */}
+        <div style={{
+          marginTop: '3rem',
+          textAlign: 'center',
+          padding: '2rem',
+          borderTop: '1px solid var(--md-sys-color-outline-variant)'
+        }}>
+          <h3 className="md-title-medium" style={{ color: 'var(--md-sys-color-on-surface)', marginBottom: '1rem' }}>
+            Prefer to write directly in the browser?
+          </h3>
+          <button
+            onClick={handleStartFromScratch}
+            className="md-outlined-button"
+            style={{
+              padding: '0.75rem 2rem',
+              borderRadius: 'var(--md-sys-shape-corner-full)',
+              border: '2px solid var(--md-sys-color-primary)',
+              color: 'var(--md-sys-color-primary)',
+              fontWeight: 600,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            <svg style={{ width: '1.25rem', height: '1.25rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            Start from Scratch
+          </button>
         </div>
       </div>
     </AdminGuard>

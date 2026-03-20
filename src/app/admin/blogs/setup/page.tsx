@@ -36,7 +36,9 @@ export default function BlogSetup() {
     subtitle: '',
     excerpt: '',
     featured_image: '',
-    content: ''
+    content: '',
+    tags: '',
+    is_featured: false
   })
   const [featuredImageFile, setFeaturedImageFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -60,7 +62,9 @@ export default function BlogSetup() {
       subtitle: (data.frontmatter?.subtitle as string) || '',
       excerpt: (data.frontmatter?.excerpt as string) || (data.frontmatter?.description as string) || '',
       featured_image: (data.frontmatter?.featured_image as string) || (data.frontmatter?.image as string) || '',
-      content: data.parsedContent || ''
+      content: data.parsedContent || '',
+      tags: Array.isArray(data.frontmatter?.tags) ? data.frontmatter.tags.join(', ') : (data.frontmatter?.tags as string) || '',
+      is_featured: (data.frontmatter?.is_featured as boolean) === true || (data.frontmatter?.featured as boolean) === true
     })
   }, [])
 
@@ -141,7 +145,9 @@ export default function BlogSetup() {
           featured_image: formData.featured_image || null,
           published,
           published_at: published ? new Date().toISOString() : null,
-          read_time_minutes: readTime
+          read_time_minutes: readTime,
+          tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+          is_featured: formData.is_featured
         })
 
       if (error) {
@@ -304,6 +310,35 @@ export default function BlogSetup() {
               }}
               placeholder="Brief description of the post (optional)"
             />
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="md-body-large" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
+              Tags (comma separated)
+            </label>
+            <input
+              type="text"
+              value={formData.tags}
+              onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+              className="md-body-large"
+              style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--md-sys-color-outline)', borderRadius: 'var(--md-sys-shape-corner-medium)', backgroundColor: 'var(--md-sys-color-surface)', color: 'var(--md-sys-color-on-surface)' }}
+              placeholder="e.g., tech, web, design"
+            />
+          </div>
+
+          {/* Featured Toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <input
+              type="checkbox"
+              id="is_featured"
+              checked={formData.is_featured}
+              onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
+              style={{ width: '1.25rem', height: '1.25rem', accentColor: 'var(--md-sys-color-primary)' }}
+            />
+            <label htmlFor="is_featured" className="md-body-large" style={{ fontWeight: '600', color: 'var(--md-sys-color-on-surface)', cursor: 'pointer', userSelect: 'none' }}>
+              Feature this post on home/gallery pages
+            </label>
           </div>
 
           {/* Featured Image */}

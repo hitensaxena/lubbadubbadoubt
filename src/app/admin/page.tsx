@@ -6,28 +6,50 @@ import AdminGuard from '../../../components/AdminGuard'
 import { sb } from '../../../lib/supabase/client'
 import Link from 'next/link'
 
+interface RecentPost {
+  id: string
+  title: string
+  created_at: string
+  published: boolean
+}
+
+interface RecentArtwork {
+  id: string
+  title: string
+  created_at: string
+}
+
 export default function AdminDashboard() {
   const [postsCount, setPostsCount] = useState<number | null>(null)
   const [artworksCount, setArtworksCount] = useState<number | null>(null)
+  const [recentPosts, setRecentPosts] = useState<RecentPost[]>([])
+  const [recentArtworks, setRecentArtworks] = useState<RecentArtwork[]>([])
   const router = useRouter()
   
   useEffect(() => {
-    fetchCounts()
+    fetchDashboardData()
   }, [])
   
-  const fetchCounts = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const [postsResult, artworksResult] = await Promise.all([
+      const [
+        postsResult, 
+        artworksResult,
+        recentPostsResult,
+        recentArtworksResult
+      ] = await Promise.all([
         sb.from('posts').select('*', { head: true, count: 'exact' }),
-        sb.from('artworks').select('*', { head: true, count: 'exact' })
+        sb.from('artworks').select('*', { head: true, count: 'exact' }),
+        sb.from('posts').select('id, title, created_at, published').order('created_at', { ascending: false }).limit(3),
+        sb.from('artworks').select('id, title, created_at').order('created_at', { ascending: false }).limit(3)
       ])
       
       setPostsCount(postsResult.count)
       setArtworksCount(artworksResult.count)
+      setRecentPosts(recentPostsResult.data || [])
+      setRecentArtworks(recentArtworksResult.data || [])
     } catch (error) {
-      console.error('Error fetching counts:', error)
-    } finally {
-      // Counts fetched
+      console.error('Error fetching dashboard data:', error)
     }
   }
   
@@ -141,65 +163,149 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Navigation Links */}
+        {/* Action Buttons Section */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem'
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1.5rem',
+          marginBottom: '3rem'
         }}>
-          <Link
-            href="/admin/blogs"
-            className="md-filled-button"
-            style={{
-              display: 'block',
-              textAlign: 'center',
-              textDecoration: 'none',
-              backgroundColor: 'var(--md-sys-color-primary)',
-              color: 'var(--md-sys-color-on-primary)'
-            }}
-          >
-            Manage Blogs
-          </Link>
-
           <Link
             href="/admin/blogs/new"
             className="md-filled-button"
             style={{
-              display: 'block',
+              display: 'flex',
+              padding: '1.5rem',
               textAlign: 'center',
               textDecoration: 'none',
-              backgroundColor: 'var(--md-sys-color-secondary)',
-              color: 'var(--md-sys-color-on-secondary)'
+              backgroundColor: 'var(--md-sys-color-primary)',
+              color: 'var(--md-sys-color-on-primary)',
+              borderRadius: '12px',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
             }}
           >
-            New Blog Post
-          </Link>
-
-          <Link
-            href="/admin/artworks"
-            className="md-filled-button"
-            style={{
-              display: 'block',
-              textAlign: 'center',
-              textDecoration: 'none',
-              backgroundColor: 'var(--md-sys-color-tertiary)',
-              color: 'var(--md-sys-color-on-tertiary)'
-            }}
-          >
-            Manage Artworks
+            <svg style={{ width: '2rem', height: '2rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Create Post</span>
+            <span style={{ fontSize: '0.875rem', opacity: 0.9 }}>Write a new blog post</span>
           </Link>
 
           <Link
             href="/admin/artworks/new"
-            className="md-outlined-button"
+            className="md-filled-button"
             style={{
-              display: 'block',
+              display: 'flex',
+              padding: '1.5rem',
               textAlign: 'center',
-              textDecoration: 'none'
+              textDecoration: 'none',
+              backgroundColor: 'var(--md-sys-color-secondary)',
+              color: 'var(--md-sys-color-on-secondary)',
+              borderRadius: '12px',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
             }}
           >
-            New Artwork
+            <svg style={{ width: '2rem', height: '2rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Upload Artwork</span>
+            <span style={{ fontSize: '0.875rem', opacity: 0.9 }}>Add new piece to gallery</span>
           </Link>
+        </div>
+
+        {/* Recent Activity Section */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+          gap: '2rem',
+          marginBottom: '2rem'
+        }}>
+          {/* Recent Blogs */}
+          <div className="md-surface-container" style={{ padding: '1.5rem', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 className="md-title-large" style={{ fontWeight: 'bold', margin: 0, color: 'var(--md-sys-color-on-surface)' }}>
+                Recent Blogs
+              </h3>
+              <Link href="/admin/blogs" style={{ color: 'var(--md-sys-color-primary)', textDecoration: 'none', fontWeight: 500 }}>
+                View All
+              </Link>
+            </div>
+            
+            {recentPosts.length === 0 ? (
+              <p style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>No posts yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {recentPosts.map(post => (
+                  <div key={post.id} style={{
+                    padding: '1rem',
+                    backgroundColor: 'var(--md-sys-color-surface)',
+                    border: '1px solid var(--md-sys-color-outline-variant)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <div>
+                      <h4 style={{ margin: '0 0 0.25rem 0', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>{post.title}</h4>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--md-sys-color-on-surface-variant)' }}>
+                        {new Date(post.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div>
+                      {post.published ? (
+                        <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--md-sys-color-primary-container)', color: 'var(--md-sys-color-on-primary-container)', borderRadius: '4px' }}>Published</span>
+                      ) : (
+                        <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--md-sys-color-secondary-container)', color: 'var(--md-sys-color-on-secondary-container)', borderRadius: '4px' }}>Draft</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Recent Artworks */}
+          <div className="md-surface-container" style={{ padding: '1.5rem', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 className="md-title-large" style={{ fontWeight: 'bold', margin: 0, color: 'var(--md-sys-color-on-surface)' }}>
+                Recent Artworks
+              </h3>
+              <Link href="/admin/artworks" style={{ color: 'var(--md-sys-color-secondary)', textDecoration: 'none', fontWeight: 500 }}>
+                View All
+              </Link>
+            </div>
+            
+            {recentArtworks.length === 0 ? (
+              <p style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>No artworks yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {recentArtworks.map(artwork => (
+                  <div key={artwork.id} style={{
+                    padding: '1rem',
+                    backgroundColor: 'var(--md-sys-color-surface)',
+                    border: '1px solid var(--md-sys-color-outline-variant)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <div>
+                      <h4 style={{ margin: '0 0 0.25rem 0', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>{artwork.title}</h4>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--md-sys-color-on-surface-variant)' }}>
+                        {new Date(artwork.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </AdminGuard>

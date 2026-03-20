@@ -27,6 +27,14 @@ export default function NewArtwork() {
       const description = formData.get('description') as string
       const imageFile = formData.get('image') as File
       
+      const medium = formData.get('medium') as string
+      const dimensions = formData.get('dimensions') as string
+      const yearStr = formData.get('year') as string
+      const year = yearStr ? parseInt(yearStr, 10) : null
+      const tagsStr = formData.get('tags') as string
+      const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : []
+      const is_featured = formData.get('is_featured') === 'on'
+      
       if (!title || !imageFile) {
         throw new Error('Title and image are required')
       }
@@ -56,7 +64,12 @@ export default function NewArtwork() {
           title,
           description: description || null,
           image_url: publicUrl,
-          published: true
+          published: true,
+          medium: medium || null,
+          dimensions: dimensions || null,
+          year,
+          tags,
+          is_featured
         })
       
       if (insertError) {
@@ -177,6 +190,44 @@ export default function NewArtwork() {
                  }}
                  placeholder="Enter artwork description (optional)"
                />
+             </div>
+
+             {/* Grid for smaller fields */}
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+               <div>
+                 <label className="md-body-large" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
+                   Medium
+                 </label>
+                 <input type="text" name="medium" className="md-body-large" style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--md-sys-color-outline)', borderRadius: '8px', backgroundColor: 'var(--md-sys-color-surface)', color: 'var(--md-sys-color-on-surface)', outline: 'none' }} placeholder="e.g., Oil on Canvas" />
+               </div>
+               <div>
+                 <label className="md-body-large" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
+                   Dimensions
+                 </label>
+                 <input type="text" name="dimensions" className="md-body-large" style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--md-sys-color-outline)', borderRadius: '8px', backgroundColor: 'var(--md-sys-color-surface)', color: 'var(--md-sys-color-on-surface)', outline: 'none' }} placeholder="e.g., 24 x 36 inches" />
+               </div>
+               <div>
+                 <label className="md-body-large" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
+                   Year
+                 </label>
+                 <input type="number" name="year" min="1000" max="3000" className="md-body-large" style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--md-sys-color-outline)', borderRadius: '8px', backgroundColor: 'var(--md-sys-color-surface)', color: 'var(--md-sys-color-on-surface)', outline: 'none' }} placeholder="e.g., 2024" />
+               </div>
+             </div>
+
+             {/* Tags */}
+             <div>
+               <label className="md-body-large" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
+                 Tags (comma separated)
+               </label>
+               <input type="text" name="tags" className="md-body-large" style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--md-sys-color-outline)', borderRadius: '8px', backgroundColor: 'var(--md-sys-color-surface)', color: 'var(--md-sys-color-on-surface)', outline: 'none' }} placeholder="e.g., abstract, modern, landscape" />
+             </div>
+
+             {/* Featured Toggle */}
+             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+               <input type="checkbox" id="is_featured" name="is_featured" style={{ width: '1.25rem', height: '1.25rem', accentColor: 'var(--md-sys-color-primary)' }} />
+               <label htmlFor="is_featured" className="md-body-large" style={{ fontWeight: '600', color: 'var(--md-sys-color-on-surface)', cursor: 'pointer', userSelect: 'none' }}>
+                 Feature this artwork on the home gallery
+               </label>
              </div>
              
              {/* Image Upload */}

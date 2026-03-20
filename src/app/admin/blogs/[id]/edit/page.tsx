@@ -19,6 +19,8 @@ interface BlogPost {
   published: boolean
   created_at: string
   updated_at: string
+  tags?: string[]
+  is_featured?: boolean
 }
 
 export default function EditBlogPage() {
@@ -32,7 +34,9 @@ export default function EditBlogPage() {
     subtitle: '',
     excerpt: '',
     featured_image: '',
-    content: ''
+    content: '',
+    tags: '',
+    is_featured: false
   })
   const router = useRouter()
   const params = useParams()
@@ -65,7 +69,9 @@ export default function EditBlogPage() {
         subtitle: data.subtitle || '',
         excerpt: data.excerpt || '',
         featured_image: data.featured_image || '',
-        content: data.content_md || ''
+        content: data.content_md || '',
+        tags: data.tags?.join(', ') || '',
+        is_featured: data.is_featured || false
       })
     } catch (error) {
       console.error('Error:', error)
@@ -141,7 +147,9 @@ export default function EditBlogPage() {
           featured_image: formData.featured_image,
           published: publishStatus,
           read_time_minutes: readTime,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+          is_featured: formData.is_featured
         })
         .eq('id', postId)
 
@@ -279,6 +287,33 @@ export default function EditBlogPage() {
                   }}
                   placeholder="Brief description of the post"
                 />
+              </div>
+
+              <div>
+                <label className="md-body-large" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
+                  Tags (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={formData.tags}
+                  onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                  className="md-body-large"
+                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--md-sys-color-outline)', borderRadius: '8px', backgroundColor: 'var(--md-sys-color-surface)', color: 'var(--md-sys-color-on-surface)' }}
+                  placeholder="e.g., tech, web, design"
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <input
+                  type="checkbox"
+                  id="is_featured"
+                  checked={formData.is_featured}
+                  onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
+                  style={{ width: '1.25rem', height: '1.25rem', accentColor: 'var(--md-sys-color-primary)' }}
+                />
+                <label htmlFor="is_featured" className="md-body-large" style={{ fontWeight: '600', color: 'var(--md-sys-color-on-surface)', cursor: 'pointer', userSelect: 'none' }}>
+                  Feature this post on home/gallery pages
+                </label>
               </div>
 
               <div>
