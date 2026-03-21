@@ -21,7 +21,21 @@ CREATE TABLE artworks (
   title text NOT NULL,
   description text,
   image_url text,
+  medium text,
+  dimensions text,
+  year integer,
+  is_featured boolean DEFAULT false,
+  tags text[] DEFAULT '{}',
   published boolean DEFAULT true,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE artwork_images (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  artwork_id uuid NOT NULL REFERENCES artworks(id) ON DELETE CASCADE,
+  image_url text NOT NULL,
+  sort_order integer NOT NULL DEFAULT 0,
   created_at timestamptz DEFAULT now()
 );
 
@@ -33,6 +47,7 @@ CREATE TABLE admins (
 -- Enable RLS
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE artworks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE artwork_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 
 -- Posts RLS policies
@@ -65,6 +80,29 @@ CREATE POLICY "Admins can delete artworks" ON artworks
   FOR DELETE USING (auth.email() IN (SELECT email FROM admins));
 
 CREATE POLICY "Admins can view all artworks" ON artworks
+  FOR SELECT USING (auth.email() IN (SELECT email FROM admins));
+
+-- Artwork images RLS policies
+CREATE POLICY "Public can view artwork images for published artworks" ON artwork_images
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1
+      FROM artworks
+      WHERE artworks.id = artwork_images.artwork_id
+        AND artworks.published = true
+    )
+  );
+
+CREATE POLICY "Admins can insert artwork images" ON artwork_images
+  FOR INSERT WITH CHECK (auth.email() IN (SELECT email FROM admins));
+
+CREATE POLICY "Admins can update artwork images" ON artwork_images
+  FOR UPDATE USING (auth.email() IN (SELECT email FROM admins));
+
+CREATE POLICY "Admins can delete artwork images" ON artwork_images
+  FOR DELETE USING (auth.email() IN (SELECT email FROM admins));
+
+CREATE POLICY "Admins can view all artwork images" ON artwork_images
   FOR SELECT USING (auth.email() IN (SELECT email FROM admins));
 
 -- Admins RLS policies

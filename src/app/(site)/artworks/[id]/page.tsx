@@ -1,15 +1,12 @@
 import { createClient } from '../../../../../lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
-
-interface Artwork {
-  id: string
-  title: string
-  description?: string
-  image_url?: string
-  created_at: string
-  published: boolean
-}
+import ArtworkDetailClient from '../../../../../components/ArtworkDetailClient'
+import {
+  isArtworkImagesQueryError,
+  normalizeArtwork,
+  type ArtworkRecord,
+} from '../../../../../lib/artworks'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -18,107 +15,74 @@ interface PageProps {
 export default async function ArtworkDetailPage({ params }: PageProps) {
   const { id } = await params
   const supabase = await createClient()
-  
-  // Fetch the artwork
-  const { data: artwork, error } = await supabase
+
+  const initialQuery = await supabase
     .from('artworks')
-    .select('*')
+    .select(`
+      id,
+      title,
+      description,
+      image_url,
+      created_at,
+      medium,
+      dimensions,
+      year,
+      tags,
+      is_featured,
+      published,
+      artwork_images (
+        id,
+        artwork_id,
+        image_url,
+        sort_order,
+        created_at
+      )
+    `)
     .eq('id', id)
     .eq('published', true)
     .single()
+
+  let artwork = initialQuery.data as ArtworkRecord | null
+  let error = initialQuery.error
+
+  if (error && isArtworkImagesQueryError(error)) {
+    const fallbackQuery = await supabase
+      .from('artworks')
+      .select('id, title, description, image_url, created_at, medium, dimensions, year, tags, is_featured, published')
+      .eq('id', id)
+      .eq('published', true)
+      .single()
+
+    artwork = fallbackQuery.data as ArtworkRecord | null
+    error = fallbackQuery.error
+  }
 
   if (error || !artwork) {
     notFound()
   }
 
+  const normalizedArtwork = normalizeArtwork(artwork as ArtworkRecord)
+
   return (
-    <article style={{
-      maxWidth: '1000px',
-      margin: '0 auto',
-      padding: '4rem 1rem',
-      background: 'transparent'
-    }}>
-      {/* Header */}
-      <header style={{
-        marginBottom: '3rem',
-        textAlign: 'center'
-      }}>
-        <h1 className="md-display-medium" style={{
-          fontWeight: 'bold',
-          lineHeight: '1.2',
-          marginBottom: '1rem',
-          color: 'var(--md-sys-color-on-surface)'
-        }}>
-          {artwork.title}
-        </h1>
-        
-        <div className="md-label-large" style={{
-          color: 'var(--md-sys-color-on-surface-variant)',
-          marginBottom: '2rem'
-        }}>
-          <time dateTime={artwork.created_at}>
-            Created on {format(new Date(artwork.created_at), 'MMMM d, yyyy')}
-          </time>
-        </div>
-      </header>
+    <section className="site-section">
+      <div className="site-container">
+        <article className="artwork-detail-page">
+          <header className="artwork-detail-header">
+            <div>
+              <span className="eyebrow">Artwork</span>
+              <h1>{normalizedArtwork.title}</h1>
+            </div>
 
-      {/* Artwork Image */}
-      {artwork.image_url && (
-        <div style={{
-          marginBottom: '3rem',
-          borderRadius: '24px',
-          background: 'rgba(255, 255, 255, 0.03)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.05)',
-          overflow: 'hidden',
-          textAlign: 'center'
-        }}>
-          <img 
-            src={artwork.image_url} 
-            alt={artwork.title}
-            style={{
-              width: '100%',
-              height: 'auto',
-              display: 'block',
-              maxHeight: '70vh',
-              objectFit: 'contain'
-            }}
-          />
-        </div>
-      )}
+            <div className="artwork-detail-header-meta">
+              <span>Created {format(new Date(normalizedArtwork.created_at), 'MMMM d, yyyy')}</span>
+              {normalizedArtwork.year ? <span>{normalizedArtwork.year}</span> : null}
+              <span>{normalizedArtwork.image_count} image{normalizedArtwork.image_count === 1 ? '' : 's'}</span>
+            </div>
+          </header>
 
-      {/* Description */}
-      {artwork.description && (
-        <div className="md-body-large" style={{
-          maxWidth: '700px',
-          margin: '0 auto',
-          lineHeight: '1.7',
-          color: 'var(--md-sys-color-on-surface)'
-        }}>
-          <h2 className="md-headline-medium" style={{
-            fontWeight: '600',
-            marginBottom: '1rem',
-            color: 'var(--md-sys-color-on-surface)'
-          }}>
-            About this artwork
-          </h2>
-          <p style={{
-            whiteSpace: 'pre-wrap'
-          }}>
-            {artwork.description}
-          </p>
-        </div>
-      )}
-
-      {/* Footer */}
-      <footer style={{
-        marginTop: '4rem',
-        paddingTop: '2rem',
-        borderTop: '1px solid var(--md-sys-color-outline-variant)',
-        textAlign: 'center'
-      }}>
-        <p className="md-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Created on {format(new Date(artwork.created_at), 'MMMM d, yyyy')}</p>
-      </footer>
-    </article>
+          <ArtworkDetailClient artwork={normalizedArtwork} />
+        </article>
+      </div>
+    </section>
   )
 }

@@ -6,9 +6,13 @@ import { format } from 'date-fns'
 interface Artwork {
   id: string
   title: string
-  description?: string
-  image_url?: string
+  description?: string | null
+  cover_image_url?: string
   created_at: string
+  year?: number | null
+  medium?: string | null
+  image_count?: number
+  is_featured?: boolean | null
 }
 
 interface ArtworkCardProps {
@@ -17,36 +21,41 @@ interface ArtworkCardProps {
 
 export default function ArtworkCard({ artwork }: ArtworkCardProps) {
   return (
-    <article className="soft-card list-card">
-      <Link href={`/artworks/${artwork.id}`}>
+    <article className="soft-card artwork-grid-card">
+      <Link href={`/artworks/${artwork.id}`} className="artwork-grid-card-link">
         <div
-          className="list-card-media"
+          className="artwork-grid-card-media"
           style={{
-            minHeight: '320px',
-            backgroundImage: artwork.image_url ? `url(${artwork.image_url})` : undefined,
+            backgroundImage: artwork.cover_image_url
+              ? `url(${artwork.cover_image_url})`
+              : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            display: artwork.image_url ? undefined : 'grid',
-            placeItems: artwork.image_url ? undefined : 'center',
-            color: artwork.image_url ? undefined : 'var(--md-sys-color-primary)',
-            fontWeight: artwork.image_url ? undefined : 600,
           }}
         >
-          {!artwork.image_url ? 'Artwork preview' : null}
+          {!artwork.cover_image_url ? <span>Artwork preview</span> : null}
+          <div className="artwork-grid-card-badges">
+            {artwork.is_featured ? <span className="artwork-badge">Featured</span> : null}
+            {(artwork.image_count ?? 0) > 1 ? (
+              <span className="artwork-badge">{artwork.image_count} images</span>
+            ) : null}
+          </div>
         </div>
 
-        <div className="list-card-body">
+        <div className="artwork-grid-card-body">
           <div className="list-card-meta">
             <time>{format(new Date(artwork.created_at), 'MMM dd, yyyy')}</time>
-            <span>Artwork</span>
+            {artwork.year ? <span>{artwork.year}</span> : null}
           </div>
 
           <h2>{artwork.title}</h2>
 
+          {artwork.medium ? <h3>{artwork.medium}</h3> : null}
+
           {artwork.description ? <p>{artwork.description}</p> : null}
 
           <div className="list-card-footer">
-            <span>Open artwork</span>
+            <span>View artwork</span>
             <span aria-hidden="true">→</span>
           </div>
         </div>
