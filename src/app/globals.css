@@ -1060,6 +1060,7 @@ p {
 }
 
 .artwork-lightbox {
+  --artwork-lightbox-top-clearance: calc(env(safe-area-inset-top, 0px) + 6.5rem);
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -1067,7 +1068,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: var(--artwork-lightbox-top-clearance) 2rem 2rem;
 }
 
 .artwork-lightbox-image {
@@ -1083,8 +1084,9 @@ p {
 
 .artwork-lightbox-close {
   position: absolute;
-  top: 1.5rem;
+  top: var(--artwork-lightbox-top-clearance);
   right: 1.5rem;
+  z-index: 2;
   min-height: 3rem;
   padding: 0.7rem 1rem;
   border-radius: 999px;
@@ -1678,12 +1680,19 @@ p {
   }
 
   .artwork-lightbox {
+    --artwork-lightbox-top-clearance: calc(env(safe-area-inset-top, 0px) + 5.75rem);
     padding: 1rem;
+    padding-top: var(--artwork-lightbox-top-clearance);
   }
 
   .artwork-lightbox-image {
     width: 100%;
     height: auto;
+  }
+
+  .artwork-lightbox-close {
+    top: var(--artwork-lightbox-top-clearance);
+    right: 1rem;
   }
 
   .artwork-lightbox-nav {
