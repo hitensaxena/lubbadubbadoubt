@@ -17,7 +17,7 @@ interface Post {
 
 export default async function BlogsPage() {
   const supabase = await createClient()
-  
+
   const { data: posts, error } = await supabase
     .from('posts')
     .select('id, slug, title, subtitle, excerpt, featured_image, read_time_minutes, published_at, views')
@@ -26,80 +26,61 @@ export default async function BlogsPage() {
 
   if (error) {
     console.error('Error fetching posts:', error)
+
     return (
-      <div style={{
-        padding: '2rem',
-        textAlign: 'center',
-        background: 'rgba(255, 255, 255, 0.03)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        borderRadius: '24px',
-        maxWidth: '600px',
-        margin: '4rem auto'
-      }}>
-        <h1 className="md-headline-large" style={{ color: 'var(--md-sys-color-error)', marginBottom: '1rem' }}>Error loading posts</h1>
-        <p className="md-body-large" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Please try again later.</p>
-      </div>
+      <section className="site-section">
+        <div className="site-container">
+          <div className="glass-panel error-state">
+            <h1 style={{ color: 'var(--md-sys-color-error)', marginBottom: '0.75rem' }}>
+              Error loading posts
+            </h1>
+            <p>Please try again later.</p>
+          </div>
+        </div>
+      </section>
     )
   }
 
   return (
-    <div style={{
-      maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '4rem 1rem',
-      background: 'transparent'
-    }}>
-      <h1 className="md-display-small" style={{
-        fontWeight: 'bold',
-        marginBottom: '0.5rem',
-        color: 'var(--md-sys-color-on-surface)',
-        textAlign: 'center'
-      }}>Blog Posts</h1>
-      
-      <p className="md-title-medium" style={{
-        color: 'var(--md-sys-color-on-surface-variant)',
-        marginBottom: '3rem',
-        textAlign: 'center'
-      }}>Thoughts, tutorials, and insights on web development and design.</p>
+    <section className="site-section">
+      <div className="site-container">
+        <div className="glass-panel page-hero">
+          <span className="eyebrow">Blog</span>
+          <h1>Writing with a calmer reading experience.</h1>
+          <p>
+            Essays, tutorials, and notes on design, development, and the craft of
+            making digital work feel intentional.
+          </p>
+        </div>
 
-      {posts && posts.length > 0 ? (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-          gap: '2rem',
-          alignItems: 'start'
-        }}>
-          {posts.map((post: Post) => (
-            <PostCard 
-              key={post.id} 
-              post={{
-                id: post.id,
-                title: post.title,
-                subtitle: post.subtitle,
-                excerpt: post.excerpt,
-                slug: post.slug,
-                featured_image: post.featured_image,
-                published_at: post.published_at,
-                read_time_minutes: post.read_time_minutes,
-                views: post.views
-              }} 
-            />
-          ))}
-        </div>
-      ) : (
-        <div style={{
-          textAlign: 'center',
-          padding: '4rem 2rem',
-          borderRadius: '24px',
-          background: 'rgba(255, 255, 255, 0.03)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.05)'
-        }}>
-          <h2 className="md-headline-medium" style={{ marginBottom: '1rem', color: 'var(--md-sys-color-on-surface)' }}>No posts yet</h2>
-          <p className="md-body-large" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Check back soon for new content!</p>
-        </div>
-      )}
-    </div>
+        {posts && posts.length > 0 ? (
+          <div className="list-grid">
+            {posts.map((post: Post) => (
+              <PostCard
+                key={post.id}
+                post={{
+                  id: post.id,
+                  title: post.title,
+                  subtitle: post.subtitle,
+                  excerpt: post.excerpt,
+                  slug: post.slug,
+                  featured_image: post.featured_image,
+                  published_at: post.published_at,
+                  read_time_minutes: post.read_time_minutes,
+                  views: post.views,
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="glass-panel empty-state">
+            <h2 style={{ color: 'var(--md-sys-color-on-surface)', marginBottom: '0.75rem' }}>
+              No posts yet
+            </h2>
+            <p>Check back soon for new writing.</p>
+          </div>
+        )}
+      </div>
+    </section>
   )
 }

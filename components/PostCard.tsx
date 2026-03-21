@@ -21,122 +21,47 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
   return (
-    <article className="md-card" style={{
-      overflow: 'hidden',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      cursor: 'pointer',
-      borderRadius: '24px',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      background: 'rgba(255, 255, 255, 0.03)',
-      backdropFilter: 'blur(10px)',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      height: 'fit-content'
-    }}
-    onMouseOver={(e) => {
-      e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'
-      e.currentTarget.style.boxShadow = '0 12px 24px rgba(139, 92, 246, 0.15)'
-      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'
-      e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)'
-    }}
-    onMouseOut={(e) => {
-      e.currentTarget.style.transform = 'translateY(0) scale(1)'
-      e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'
-      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)'
-      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'
-    }}>
-      <Link href={`/blogs/${post.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-        {post.featured_image && (
-          <div style={{
-            width: '100%',
-            height: '220px',
-            backgroundColor: 'var(--md-sys-color-surface-variant)',
-            backgroundImage: `url(${post.featured_image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            position: 'relative'
-          }}>
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: '60px',
-              background: 'linear-gradient(transparent, rgba(0,0,0,0.3))'
-            }} />
+    <article className="soft-card list-card">
+      <Link href={`/blogs/${post.slug}`}>
+        {post.featured_image ? (
+          <div
+            className="list-card-media"
+            style={{
+              backgroundImage: `url(${post.featured_image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+        ) : (
+          <div
+            className="list-card-media"
+            style={{
+              display: 'grid',
+              placeItems: 'center',
+              color: 'var(--md-sys-color-primary)',
+              fontWeight: 600,
+            }}
+          >
+            Editorial note
           </div>
         )}
-        
-        <div style={{ padding: '1.75rem' }}>
-          <div className="md-label-large" style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1rem',
-            color: 'var(--md-sys-color-primary)',
-            fontWeight: '500'
-          }}>
+
+        <div className="list-card-body">
+          <div className="list-card-meta">
             <time>{format(new Date(post.published_at), 'MMM dd, yyyy')}</time>
-            <div style={{ display: 'flex', gap: '1rem', color: 'var(--md-sys-color-on-surface-variant)' }}>
-              {post.read_time_minutes && (
-                <span>{post.read_time_minutes} min read</span>
-              )}
-              {post.views && (
-                <span>{post.views.toLocaleString()} views</span>
-              )}
-            </div>
+            {post.read_time_minutes ? <span>{post.read_time_minutes} min read</span> : null}
+            {post.views ? <span>{post.views.toLocaleString()} views</span> : null}
           </div>
-          
-          <h2 className="md-title-large" style={{
-            fontWeight: 'bold',
-            marginBottom: '0.75rem',
-            color: 'var(--md-sys-color-on-surface)',
-            lineHeight: '1.3',
-            fontSize: '1.375rem'
-          }}>
-            {post.title}
-          </h2>
-          
-          {post.subtitle && (
-            <h3 className="md-title-medium" style={{
-              fontWeight: '500',
-              marginBottom: '1rem',
-              color: 'var(--md-sys-color-on-surface-variant)',
-              lineHeight: '1.4',
-              fontSize: '1.125rem'
-            }}>
-              {post.subtitle}
-            </h3>
-          )}
-          
-          {post.excerpt && (
-            <p className="md-body-medium" style={{
-              color: 'var(--md-sys-color-on-surface-variant)',
-              lineHeight: '1.6',
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              fontSize: '0.95rem',
-              marginBottom: '1rem'
-            }}>
-              {post.excerpt}
-            </p>
-          )}
-          
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            marginTop: 'auto',
-            paddingTop: '0.5rem'
-          }}>
-            <span className="md-label-medium" style={{
-              color: 'var(--md-sys-color-primary)',
-              fontWeight: '500',
-              fontSize: '0.875rem'
-            }}>
-              Read more →
-            </span>
+
+          <h2>{post.title}</h2>
+
+          {post.subtitle ? <h3>{post.subtitle}</h3> : null}
+
+          {post.excerpt ? <p>{post.excerpt}</p> : null}
+
+          <div className="list-card-footer">
+            <span>Read article</span>
+            <span aria-hidden="true">→</span>
           </div>
         </div>
       </Link>

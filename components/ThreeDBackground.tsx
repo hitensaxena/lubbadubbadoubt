@@ -1,81 +1,74 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Float, Sphere, Torus, MeshDistortMaterial, Environment, Stars, PerspectiveCamera } from '@react-three/drei'
+import { Float, MeshDistortMaterial, PerspectiveCamera, Sphere, Stars, Torus } from '@react-three/drei'
 import * as THREE from 'three'
 
 function AnimatedShapes() {
   const groupRef = useRef<THREE.Group>(null)
 
-  // Gentle floating motion based on mouse position (parallax)
   useFrame((state) => {
-    if (groupRef.current) {
-      // Very subtle mouse parallax
-      const targetX = (state.pointer.x * 0.2)
-      const targetY = (state.pointer.y * 0.2)
-      groupRef.current.position.x += (targetX - groupRef.current.position.x) * 0.05
-      groupRef.current.position.y += (targetY - groupRef.current.position.y) * 0.05
+    if (!groupRef.current) {
+      return
     }
+
+    const targetX = state.pointer.x * 0.12
+    const targetY = state.pointer.y * 0.12
+
+    groupRef.current.position.x += (targetX - groupRef.current.position.x) * 0.035
+    groupRef.current.position.y += (targetY - groupRef.current.position.y) * 0.035
+    groupRef.current.rotation.z = THREE.MathUtils.lerp(
+      groupRef.current.rotation.z,
+      state.pointer.x * 0.08,
+      0.03
+    )
   })
 
   return (
     <group ref={groupRef}>
-      {/* Primary Distorted Sphere */}
-      <Float speed={2} rotationIntensity={1.5} floatIntensity={2}>
-        <Sphere args={[1.5, 64, 64]} position={[-3, 1, -5]}>
+      <Float speed={1.4} rotationIntensity={0.5} floatIntensity={1.2}>
+        <Sphere args={[1.35, 64, 64]} position={[-2.6, 1.2, -5]}>
           <MeshDistortMaterial
-            color="#a78bfa" // Primary pastel purple
-            attach="material"
-            distort={0.4}
-            speed={2}
-            roughness={0.2}
-            metalness={0.8}
-            clearcoat={1}
-            clearcoatRoughness={0.1}
+            color="#84c7bc"
+            distort={0.24}
+            speed={1.4}
+            roughness={0.35}
+            metalness={0.28}
+            clearcoat={0.9}
+            clearcoatRoughness={0.12}
+            transparent
+            opacity={0.85}
           />
         </Sphere>
       </Float>
 
-      {/* Secondary Torus */}
-      <Float speed={1.5} rotationIntensity={2} floatIntensity={1.5}>
-        <Torus args={[1.2, 0.4, 32, 100]} position={[3.5, 0.5, -4]} rotation={[Math.PI / 4, 0, 0]}>
+      <Float speed={1.1} rotationIntensity={0.8} floatIntensity={1}>
+        <Torus args={[1.15, 0.24, 40, 120]} position={[2.7, 0.2, -4.2]} rotation={[0.8, 0.4, 0.3]}>
           <meshPhysicalMaterial
-            color="#22d3ee" // Secondary cyan
-            roughness={0.1}
-            metalness={0.9}
+            color="#dfab84"
+            roughness={0.16}
+            metalness={0.44}
             clearcoat={1}
-            clearcoatRoughness={0.1}
-            transmission={0.5} // adds glass-like transparency
-            thickness={0.5}
+            clearcoatRoughness={0.18}
+            transmission={0.25}
+            transparent
+            opacity={0.74}
           />
         </Torus>
       </Float>
 
-      {/* Tertiary Distorted Sphere */}
-      <Float speed={2.5} rotationIntensity={1} floatIntensity={2.5}>
-        <Sphere args={[0.8, 32, 32]} position={[0, -2.5, -3]}>
+      <Float speed={1.8} rotationIntensity={0.4} floatIntensity={1.4}>
+        <Sphere args={[0.7, 48, 48]} position={[0.2, -2.2, -3.2]}>
           <MeshDistortMaterial
-            color="#f9a8d4" // Tertiary pink
-            attach="material"
-            distort={0.5}
-            speed={3}
+            color="#a9bed6"
+            distort={0.18}
+            speed={1.6}
             roughness={0.3}
-            metalness={0.7}
-            clearcoat={0.5}
+            metalness={0.18}
+            transparent
+            opacity={0.65}
           />
-        </Sphere>
-      </Float>
-      
-      {/* Small accent floating orbs */}
-      <Float speed={3} rotationIntensity={2} floatIntensity={4}>
-        <Sphere args={[0.3, 32, 32]} position={[2.5, -1.5, -2]}>
-          <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} roughness={0.2} metalness={0.8} />
-        </Sphere>
-      </Float>
-      <Float speed={2.2} rotationIntensity={2} floatIntensity={3.5}>
-        <Sphere args={[0.2, 32, 32]} position={[-2, -2, -1]}>
-          <meshStandardMaterial color="#ffffff" emissive="#22d3ee" emissiveIntensity={1} roughness={0.2} metalness={0.8} />
         </Sphere>
       </Float>
     </group>
@@ -83,29 +76,35 @@ function AnimatedShapes() {
 }
 
 export default function ThreeDBackground() {
-  const [isMounted, setIsMounted] = useState(false)
-  
-  // Prevent hydration mismatch by rendering canvas only on client
+  const [mounted, setMounted] = useState(false)
+
   useEffect(() => {
-    setIsMounted(true)
+    setMounted(true)
   }, [])
 
-  if (!isMounted) return null
+  if (!mounted) {
+    return null
+  }
 
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
-      {/* Ensure canvas covers the background without interacting with clicks unless specified */}
-      <Canvas dpr={[1, 2]} eventSource={document.body} eventPrefix="client">
-        <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={45} />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1} color="#ffffff" />
-        <directionalLight position={[-10, -10, -5]} intensity={0.8} color="#8b5cf6" />
-        <pointLight position={[0, 5, 0]} intensity={0.5} color="#ec4899" />
-        
+    <div
+      aria-hidden="true"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        zIndex: 0,
+        opacity: 0.8,
+      }}
+    >
+      <Canvas dpr={[1, 1.6]} eventSource={document.body} eventPrefix="client">
+        <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={42} />
+        <ambientLight intensity={0.7} />
+        <pointLight position={[5, 4, 4]} intensity={1.2} color="#fff6ec" />
+        <pointLight position={[-4, -1, 3]} intensity={0.8} color="#84c7bc" />
+        <pointLight position={[0, -4, 1]} intensity={0.6} color="#dfab84" />
         <AnimatedShapes />
-        {/* Adds depth with subtle stars */}
-        <Stars radius={100} depth={50} count={3000} factor={4} saturation={0.5} fade speed={0.5} />
-        <Environment preset="city" />
+        <Stars radius={70} depth={40} count={1200} factor={2.4} saturation={0.2} fade speed={0.15} />
       </Canvas>
     </div>
   )
